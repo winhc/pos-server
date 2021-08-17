@@ -4,6 +4,7 @@ import UserType from "../enum/user.type";
 
 @Entity()
 export class User {
+    
     @ApiProperty()
     @PrimaryGeneratedColumn()
     id: number;
@@ -13,7 +14,7 @@ export class User {
     name: string;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({nullable: false, unique: true})
     account: string;
 
     @ApiProperty()
