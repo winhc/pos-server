@@ -42,6 +42,15 @@ export class UserService {
     }
   }
 
+  async findAccount(account: string): Promise<User> {
+    try {
+      return await this.userRepository.createQueryBuilder('user').where("user.account = :account", { account: account }).getOneOrFail();
+    } catch (error) {
+      logger.error(`findAccount: ${error}`);
+      throw new BadRequestException;
+    }
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const user = await this.findOne(id);

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Put, Logger } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+const logger = new Logger('UserController');
 
 @ApiTags('users')
 @Controller('users')
@@ -35,6 +36,17 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.userService.findOne(id);
+  }
+
+  //findAccount
+  @ApiOkResponse({ type: User })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
+  @Post(':account')
+  findAccount(@Param('account') account: string): Promise<User> {
+    logger.log(`account: ${account}`);
+    return this.userService.findAccount(account);
   }
 
   // @Put(':id')
