@@ -39,15 +39,15 @@ export class UserController {
   }
 
   //findAccount
-  @ApiOkResponse({ type: User })
-  @ApiNotFoundResponse()
-  @ApiBadRequestResponse()
-  @ApiInternalServerErrorResponse()
-  @Post(':account')
-  findAccount(@Param('account') account: string): Promise<User> {
-    logger.log(`account: ${account}`);
-    return this.userService.findAccount(account);
-  }
+  // @ApiOkResponse({ type: User })
+  // @ApiNotFoundResponse()
+  // @ApiBadRequestResponse()
+  // @ApiInternalServerErrorResponse()
+  // @Post(':account')
+  // findAccount(@Param('account') account: string): Promise<User> {
+  //   logger.log(`account: ${account}`);
+  //   return this.userService.findAccount(account);
+  // }
 
   // @Put(':id')
   @ApiOkResponse({ type: User })
