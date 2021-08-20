@@ -1,23 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsAlpha, IsAlphanumeric, IsNotEmpty, MaxLength } from "class-validator";
-import UserType from "../enum/user.type";
 
-export class UserDto {
+export class CategoryDto {
 
     @IsNotEmpty()
     id: number;
 
     @IsNotEmpty()
     name: string;
-
-    @IsNotEmpty()
-    account: string;
-
-    @IsNotEmpty()
-    password: string;
-
-    @IsNotEmpty()
-    type: UserType;
 
     @IsNotEmpty()
     remarks?: string;

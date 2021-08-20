@@ -13,14 +13,14 @@ import { RegistrationStatus } from './interface/registration-status.interface';
 export class AuthService {
     constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { }
 
-    async register(userDto: CreateUserDto): Promise<RegistrationStatus> {
+    async register(createUserDto: CreateUserDto): Promise<RegistrationStatus> {
         let status: RegistrationStatus = {
             success: true,
             message: 'user registered',
         };
 
         try {
-            await this.userService.createUser(userDto);
+            await this.userService.createUser(createUserDto);
         } catch (err) {
             status = {
                 success: false,
