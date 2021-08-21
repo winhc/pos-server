@@ -19,7 +19,6 @@ export class UserDto {
     @IsNotEmpty()
     type: UserType;
 
-    @IsNotEmpty()
     remarks?: string;
 
     @IsNotEmpty()

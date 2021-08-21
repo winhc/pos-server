@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsAlpha, IsAlphanumeric, MaxLength } from 'class-validator';
+import { IsAlpha, IsAlphanumeric, IsNotEmpty, MaxLength } from 'class-validator';
 import UserType from '../enum/user.type';
 import { CreateUserDto } from './create-user.dto';
 export class UpdateUserDto extends PartialType(CreateUserDto) {
@@ -9,22 +9,26 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @ApiProperty({ required: false })
     name: string;
 
+    @IsNotEmpty()
     @IsAlphanumeric()
     @MaxLength(8)
     @ApiProperty({ required: true })
     account: string;
 
+    @IsNotEmpty()
     @IsAlphanumeric()
     @MaxLength(8)
     @ApiProperty({ required: true })
     password: string;
 
-    @ApiProperty({ required: true })
+    @ApiProperty({ required: false })
     type: UserType;
 
+    @IsNotEmpty()
     @ApiProperty({ required: true })
     remarks?: string;
 
-    @ApiProperty({type: 'string', format: 'date-time', required: false})
+    @IsNotEmpty()
+    @ApiProperty({type: 'string', format: 'date-time', required: true})
     updated_at?: Date;
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import UserType from "../enum/user.type";
 const bcrypt = require('bcrypt');
 
@@ -21,7 +21,9 @@ export class User {
     @ApiProperty()
     @Column({nullable: false})
     password: string;
-    @BeforeInsert() async hashPassword() {
+    @BeforeInsert()
+    @BeforeUpdate()
+    async hashPassword() {
         this.password = await bcrypt.hash(this.password, 10)
     }
 

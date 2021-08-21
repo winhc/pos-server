@@ -1,23 +1,27 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsAlphanumeric, MaxLength } from "class-validator";
+import { IsAlpha, IsAlphanumeric, IsNotEmpty, MaxLength } from "class-validator";
 import UserType from "../enum/user.type";
 
 export class CreateUserDto {
 
+    @IsNotEmpty()
     @IsAlpha()
     @ApiProperty({ required: true })
     name: string;
 
+    @IsNotEmpty()
     @IsAlphanumeric()
     @MaxLength(8)
     @ApiProperty({ required: true })
     account: string;
 
+    @IsNotEmpty()
     @IsAlphanumeric()
     @MaxLength(8)
     @ApiProperty({ required: true })
     password: string;
 
+    @IsNotEmpty()
     @ApiProperty({ required: true })
     type: UserType;
 
