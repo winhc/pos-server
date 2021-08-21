@@ -13,16 +13,16 @@ const logger = new Logger('UserService');
 export class UserService {
   constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) { }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      logger.log(`createUserDto=> ${createUserDto}`)
-      const user = this.userRepository.create(createUserDto);
-      return await this.userRepository.save(user);
-    } catch (error) {
-      logger.error(`create: ${error}`);
-      throw new BadRequestException;
-    }
-  }
+  // async create(createUserDto: CreateUserDto): Promise<User> {
+  //   try {
+  //     logger.log(`createUserDto=> ${createUserDto}`)
+  //     const user = this.userRepository.create(createUserDto);
+  //     return await this.userRepository.save(user);
+  //   } catch (error) {
+  //     logger.error(`create: ${error}`);
+  //     throw new BadRequestException;
+  //   }
+  // }
 
   async findAll(account?: string): Promise<User[]> {
     try {
@@ -69,11 +69,11 @@ export class UserService {
     return await this.findAccount({ where: { account } });
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserLoginReplyDto> {
+  async create(createUserDto: CreateUserDto): Promise<UserLoginReplyDto> {
     const { account } = createUserDto;
-    logger.log(`account: ${account}`);
+    // logger.log(`account: ${account}`);
     const userInDb = await this.userRepository.findOne({ where: {account} });
-    logger.log(`userInDb: ${userInDb}`);
+    // logger.log(`userInDb: ${userInDb}`);
     if (userInDb) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }

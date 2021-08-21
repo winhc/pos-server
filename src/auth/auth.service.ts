@@ -13,14 +13,14 @@ import { RegistrationStatus } from './interface/registration-status.interface';
 export class AuthService {
     constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { }
 
-    async register(createUserDto: CreateUserDto): Promise<RegistrationStatus> {
+    async create(createUserDto: CreateUserDto): Promise<RegistrationStatus> {
         let status: RegistrationStatus = {
             success: true,
-            message: 'user registered',
+            message: 'user created',
         };
 
         try {
-            await this.userService.createUser(createUserDto);
+            await this.userService.create(createUserDto);
         } catch (err) {
             status = {
                 success: false,
@@ -50,17 +50,17 @@ export class AuthService {
         const user: JwtPayload = { account };
         const accessToken = this.jwtService.sign(user);
         return {
-          expiresIn,
-          accessToken,
+            expiresIn,
+            accessToken,
         };
-      }
+    }
 
-      async validateUser(payload: JwtPayload): Promise<UserLoginReplyDto> {
+    async validateUser(payload: JwtPayload): Promise<UserLoginReplyDto> {
         const user = await this.userService.findByPayload(payload);
         if (!user) {
-          throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
         }
         return user;
-      }
+    }
 
 }

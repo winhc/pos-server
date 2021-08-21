@@ -12,14 +12,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: jwtConstants.SECRET_KEY,
-        });  
+        });
     }
-    
+
     async validate(payload: JwtPayload): Promise<UserLoginReplyDto> {
         const user = await this.authService.validateUser(payload);
         if (!user) {
-            throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);    
-        }    
-        return user;  
+            throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+        }
+        return user;
     }
 }

@@ -1,4 +1,4 @@
 export const jwtConstants = {
     SECRET_KEY: 'cherrySecretKey',
-    EXPIRE_IN: 3600
+    EXPIRE_IN: 300
 };
