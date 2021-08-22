@@ -16,7 +16,7 @@ export class UserService {
 
   /**
    * create new user data
-   * return UserLoginReplyDto
+   * return UserDto
    */
   async create(createUserDto: CreateUserDto): Promise<UserDto> {
     const { account } = createUserDto;
@@ -101,11 +101,12 @@ export class UserService {
 
   /**
    * Delete entre user row data that matches given id.
+   * return UserDto
    */
   async remove(id: number): Promise<UserDto> {
     const user = await this.findOne(id);
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException({description: 'User not found'});
     }
     const deleteUser = await this.userRepository.remove(user);
     return toUserDto(deleteUser);

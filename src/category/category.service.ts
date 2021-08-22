@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { toCategoryDto } from 'src/helper/mapper/category.mapper';
 import { UserDto } from 'src/user/dto/user.dto';
@@ -16,28 +16,102 @@ export class CategoryService {
     @InjectRepository(Category) private readonly categoryRepository: Repository<Category>,
     private readonly userService: UserService) { }
 
+  /**
+   * create new category data
+   * return CategoryDto
+   */
   async create({ account }: UserDto, createCategoryDto: CreateCategoryDto): Promise<CategoryDto> {
-    const { name, remarks } = createCategoryDto;
-    const user = this.userService.findAccount({ where: {account} });
-    logger.log(`user: ${user}`);
+    const { name } = createCategoryDto;
+    // const user = this.userService.findAccount({ where: {account} });
+    // logger.log(`user: ${user}`);
+    const categoryInDb = await this.categoryRepository.findOne({ where: { name } });
+    if (categoryInDb) {
+      throw new BadRequestException({ description: 'Category already exit' });
+    }
     const category: Category = this.categoryRepository.create(createCategoryDto);
-    await this.categoryRepository.save(category);
+    try {
+      await this.categoryRepository.save(category);
+    } catch (error) {
+      logger.error(`create: ${error}`);
+      throw new InternalServerErrorException({ description: 'Create category fail' });
+    }
     return toCategoryDto(category);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  /**
+   * find user data
+   * return CategoryDto[]
+   */
+  async findAll(name?: string): Promise<CategoryDto[]> {
+    try {
+      if (name) {
+        const category = await this.categoryRepository.find({ where: { name } });
+        return category.map(category => toCategoryDto(category));
+      } else {
+        const category = await this.categoryRepository.find();
+        return category.map(category => toCategoryDto(category));
+      }
+    } catch (error) {
+      logger.error(`findAll: ${error}`);
+      throw new BadRequestException({ description: 'Category not found' });
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  /**
+   * find category data by id
+   * return Category Entity
+   */
+  async findOne(id: number): Promise<Category> {
+    try {
+      return await this.categoryRepository.findOneOrFail(id);
+    } catch (error) {
+      logger.warn(`findOne : ${error}`);
+      throw new BadRequestException({ description: 'Category not found' });
+    }
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  /**
+   * find category data by id
+   * return CategoryDto
+   */
+  async findById(id: number): Promise<CategoryDto> {
+    try {
+      const category = await this.findOne(id);
+      return toCategoryDto(category)
+    } catch (error) {
+      throw new BadRequestException({ description: 'User not found' });
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  /**
+   * Update category row data that matches given id
+   * return CategoryDto
+   */
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<CategoryDto> {
+    const category = await this.findOne(id);
+    if (!category) {
+      throw new BadRequestException({ description: 'Category not found' });
+    }
+    try {
+      const categoryToUpdate = Object.assign(category, updateCategoryDto);
+      await this.categoryRepository.update(id, categoryToUpdate);
+    } catch (error) {
+      logger.error(`update : ${error}`);
+      throw new InternalServerErrorException({ description: 'Update fail' })
+    }
+    const updateCategory = await this.findOne(category.id);
+    return toCategoryDto(updateCategory);
+  }
+
+  /**
+   * Delete entre category row data that matches given id.
+   */
+  async remove(id: number): Promise<CategoryDto> {
+    const category = await this.findOne(id);
+    if (!category) {
+      throw new BadRequestException({ description: 'Category not found' });
+    }
+    const deleteCategory = await this.categoryRepository.remove(category);
+    return toCategoryDto(deleteCategory);
   }
 }

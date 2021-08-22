@@ -29,7 +29,7 @@ export class UserController {
      * get all users OR
      * search user by account
      */
-    @ApiOkResponse({ type: UserDto, isArray: true, description: 'Response all users' })
+    @ApiOkResponse({ type: UserDto, isArray: true, description: 'Response all users or search user by account' })
     @ApiQuery({ name: 'account', required: false })
     @ApiNotFoundResponse()
     @ApiBadRequestResponse()
@@ -48,7 +48,7 @@ export class UserController {
     @ApiInternalServerErrorResponse()
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
-        return await this.userService.findOne(id);
+        return await this.userService.findById(id);
     }
 
     /**

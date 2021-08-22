@@ -1,15 +1,18 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsAlpha } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { CreateCategoryDto } from './create-category.dto';
 
 export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
-    @IsAlpha()
     @ApiProperty({ required: true })
+    @IsString()
+    @IsNotEmpty()
     name: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty({ required: true })
+    @IsNotEmpty()
     remarks?: string;
 
-    @ApiProperty({type: 'string', format: 'date-time', required: true})
+    @ApiProperty({ type: 'string', format: 'date-time', required: true })
+    @IsNotEmpty()
     updated_at: Date;
 }

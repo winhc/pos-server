@@ -1,11 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsAlpha, IsAlphanumeric, IsNotEmpty, MaxLength } from "class-validator";
+import { IsAlphanumeric, IsNotEmpty, IsString, MaxLength } from "class-validator";
 import UserType from "../../helper/constant/user-type.constant";
 
 export class CreateUserDto {
 
     @IsNotEmpty()
-    @IsAlpha()
+    @IsString()
     @ApiProperty({ required: true })
     name: string;
 
@@ -28,6 +28,6 @@ export class CreateUserDto {
     @ApiProperty({ required: false })
     remarks?: string;
 
-    @ApiProperty({type: 'string', format: 'date-time', required: true})
+    @ApiProperty({ type: 'string', format: 'date-time', required: true })
     created_at: Date;
 }

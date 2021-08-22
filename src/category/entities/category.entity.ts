@@ -9,7 +9,7 @@ export class Category {
     id: number;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({nullable: false, unique: true})
     name: string;
 
     @ApiProperty()
