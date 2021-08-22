@@ -95,7 +95,8 @@ export class UserService {
       logger.error(`update : ${error}`);
       throw new InternalServerErrorException({ description: 'Update fail' })
     }
-    return await this.findOne(user.id);
+    const updateUser = await this.findOne(user.id);
+    return toUserDto(updateUser);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from 'src/helper/jwt.constant';
@@ -9,7 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 
 @Module({
     imports: [
-        UserModule,
+        forwardRef(() => UserModule),
         PassportModule.register({
             defaultStrategy: 'jwt',
             property: 'user',
