@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { toCategoryDto } from 'src/helper/category.mapper';
+import { toCategoryDto } from 'src/helper/maper/category.mapper';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';

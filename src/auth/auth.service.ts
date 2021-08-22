@@ -1,6 +1,6 @@
 import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from 'src/helper/jwt.constant';
+import { jwtConstants } from 'src/helper/constant/jwt.constant';
 import { UserLoginReplyDto } from 'src/user/dto/user-login-reply.dto';
 import { UserLoginRequestDto } from 'src/user/dto/user-login-request.dto';
 import { UserService } from 'src/user/user.service';

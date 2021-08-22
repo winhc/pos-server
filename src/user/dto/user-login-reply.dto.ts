@@ -1,5 +1,5 @@
 import { IsAlpha, IsAlphanumeric, IsNotEmpty } from "class-validator";
-import UserType from "../enum/user.type";
+import UserType from "../../helper/constant/user-type.constant";
 
 export class UserLoginReplyDto {
     @IsNotEmpty()

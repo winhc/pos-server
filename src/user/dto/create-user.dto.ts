@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsAlpha, IsAlphanumeric, IsNotEmpty, MaxLength } from "class-validator";
-import UserType from "../enum/user.type";
+import UserType from "../../helper/constant/user-type.constant";
 
 export class CreateUserDto {
 

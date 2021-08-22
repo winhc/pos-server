@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import UserType from "../enum/user.type";
+import UserType from "../../helper/constant/user-type.constant";
 const bcrypt = require('bcrypt');
 
 @Entity()
