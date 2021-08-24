@@ -74,13 +74,4 @@ export class UserController {
     async remove(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
         return await this.userService.remove(id);
     }
-
-    /**
-     * check user login data
-     */
-    @Get('whoami')
-    async whoAmI(@Req() req: any): Promise<JwtPayload> {
-        return req.user;
-    }
-
 }
