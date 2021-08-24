@@ -12,6 +12,9 @@ export class CategoryDto {
     name: string;
 
     @ApiProperty()
+    image_url: string;
+
+    @ApiProperty()
     @IsNotEmpty()
     remarks?: string;
 

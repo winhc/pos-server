@@ -14,6 +14,10 @@ export class Category {
 
     @ApiProperty()
     @Column({nullable: true})
+    image_url: string;
+
+    @ApiProperty()
+    @Column({nullable: true})
     remarks: string;
     
     @ApiProperty()

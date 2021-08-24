@@ -9,6 +9,9 @@ export class CreateCategoryDto {
     name: string;
 
     @ApiProperty({ required: false })
+    image_url: string;
+
+    @ApiProperty({ required: false })
     @IsString()
     @IsNotEmpty()
     remarks?: string;
