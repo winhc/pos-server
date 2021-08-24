@@ -22,7 +22,7 @@ export class AuthController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized login' })
     @Post('login')
     async login(@Body() userLoginRequestDto: UserLoginRequestDto): Promise<LoginStatus> {
-        logger.log(userLoginRequestDto);
+        // logger.log(userLoginRequestDto);
         return await this.authService.login(userLoginRequestDto);
     }
 
@@ -32,7 +32,7 @@ export class AuthController {
      @Get('whoami')
      @UseGuards(AuthGuard())
      async whoAmI(@Req() req: any, @Headers() headers): Promise<JwtPayload> {
-         console.log('headers', headers);
+        //  console.log('headers', headers);
          return req.user;
      }
 }

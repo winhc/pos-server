@@ -138,12 +138,12 @@ export class UserService {
   async findByLogin({ account, password }: UserLoginRequestDto): Promise<UserLoginReplyDto> {
     const user = await this.userRepository.findOne({ where: { account } });
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.UNAUTHORIZED)
+      throw new HttpException('Invalid Username', HttpStatus.UNAUTHORIZED)
     }
 
     const areEqual = await comparePasswords(user.password, password);
     if (!areEqual) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
     }
 
     return toUserLoginReplyDto(user);

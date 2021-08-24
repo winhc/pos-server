@@ -26,14 +26,14 @@ export class CategoryService {
     // logger.log(`user: ${user}`);
     const categoryInDb = await this.categoryRepository.findOne({ where: { name } });
     if (categoryInDb) {
-      throw new BadRequestException({ description: 'Category already exit' });
+      throw new BadRequestException({ message: 'Category already exit' });
     }
     const category: Category = this.categoryRepository.create(createCategoryDto);
     try {
       await this.categoryRepository.save(category);
     } catch (error) {
       logger.error(`create: ${error}`);
-      throw new InternalServerErrorException({ description: 'Create category fail' });
+      throw new InternalServerErrorException({ message: 'Create category fail' });
     }
     return toCategoryDto(category);
   }
@@ -53,7 +53,7 @@ export class CategoryService {
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
-      throw new BadRequestException({ description: 'Category not found' });
+      throw new BadRequestException({ message: 'Category not found' });
     }
   }
 
@@ -66,7 +66,7 @@ export class CategoryService {
       return await this.categoryRepository.findOneOrFail(id);
     } catch (error) {
       logger.warn(`findOne : ${error}`);
-      throw new BadRequestException({ description: 'Category not found' });
+      throw new BadRequestException({ message: 'Category not found' });
     }
   }
 
@@ -79,7 +79,7 @@ export class CategoryService {
       const category = await this.findOne(id);
       return toCategoryDto(category)
     } catch (error) {
-      throw new BadRequestException({ description: 'User not found' });
+      throw new BadRequestException({ message: 'User not found' });
     }
   }
 
@@ -90,14 +90,14 @@ export class CategoryService {
   async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<CategoryDto> {
     const category = await this.findOne(id);
     if (!category) {
-      throw new BadRequestException({ description: 'Category not found' });
+      throw new BadRequestException({ message: 'Category not found' });
     }
     try {
       const categoryToUpdate = Object.assign(category, updateCategoryDto);
       await this.categoryRepository.update(id, categoryToUpdate);
     } catch (error) {
       logger.error(`update : ${error}`);
-      throw new InternalServerErrorException({ description: 'Update fail' })
+      throw new InternalServerErrorException({ message: 'Update fail' })
     }
     const updateCategory = await this.findOne(category.id);
     return toCategoryDto(updateCategory);
@@ -109,7 +109,7 @@ export class CategoryService {
   async remove(id: number): Promise<CategoryDto> {
     const category = await this.findOne(id);
     if (!category) {
-      throw new BadRequestException({ description: 'Category not found' });
+      throw new BadRequestException({ message: 'Category not found' });
     }
     const deleteCategory = await this.categoryRepository.remove(category);
     return toCategoryDto(deleteCategory);
