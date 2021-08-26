@@ -6,7 +6,7 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
     @ApiProperty({ required: true })
     @IsString()
     @IsNotEmpty()
-    name: string;
+    category_name: string;
 
     @ApiProperty({ required: false })
     image_url?: string;

@@ -9,7 +9,11 @@ export class CategoryDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    name: string;
+    category_code: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    category_name: string;
 
     @ApiProperty()
     image_url: string;

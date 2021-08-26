@@ -10,7 +10,11 @@ export class Category {
 
     @ApiProperty()
     @Column({nullable: false, unique: true})
-    name: string;
+    category_code: string;
+
+    @ApiProperty()
+    @Column({nullable: false, unique: true})
+    category_name: string;
 
     @ApiProperty()
     @Column({nullable: true})

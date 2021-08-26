@@ -6,14 +6,18 @@ export class CreateCategoryDto {
     @ApiProperty({ required: true })
     @IsString()
     @IsNotEmpty()
-    name: string;
+    category_code: string;
+
+    @ApiProperty({ required: true })
+    @IsString()
+    @IsNotEmpty()
+    category_name: string;
 
     @ApiProperty({ required: false })
     image_url: string;
 
     @ApiProperty({ required: false })
     @IsString()
-    @IsNotEmpty()
     remarks?: string;
 
     @ApiProperty({type: 'string', format: 'date-time', required: true})

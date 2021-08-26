@@ -21,10 +21,10 @@ export class CategoryService {
    * return CategoryDto
    */
   async create({ account }: UserDto, createCategoryDto: CreateCategoryDto): Promise<CategoryDto> {
-    const { name } = createCategoryDto;
+    const { category_name } = createCategoryDto;
     // const user = this.userService.findAccount({ where: {account} });
     // logger.log(`user: ${user}`);
-    const categoryInDb = await this.categoryRepository.findOne({ where: { name } });
+    const categoryInDb = await this.categoryRepository.findOne({ where: { category_name } });
     if (categoryInDb) {
       throw new BadRequestException({ message: 'Category already exit' });
     }
