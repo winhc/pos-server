@@ -2,22 +2,14 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Category {
+export class ProductType {
     @ApiProperty()
     @PrimaryGeneratedColumn()
     id: number;
 
     @ApiProperty()
     @Column({nullable: false, unique: true})
-    category_code: string;
-
-    @ApiProperty()
-    @Column({nullable: false, unique: true})
-    category_name: string;
-
-    @ApiProperty()
-    @Column({nullable: true})
-    image_url: string;
+    protuct_type_name: string;
 
     @ApiProperty()
     @Column({nullable: true})

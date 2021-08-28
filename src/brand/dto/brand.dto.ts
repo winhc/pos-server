@@ -1,27 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
 
-export class CategoryDto {
-
+export class BrandDto {
     @ApiProperty()
     @IsNotEmpty()
     id: number;
 
     @ApiProperty()
     @IsNotEmpty()
-    category_code: string;
+    brand_name: string;
 
     @ApiProperty()
-    @IsNotEmpty()
-    category_name: string;
-
-    @ApiProperty()
-    image_url: string;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    remarks?: string;
-
+    remarks: string;
+    
     @ApiProperty()
     @IsNotEmpty()
     created_at: Date;

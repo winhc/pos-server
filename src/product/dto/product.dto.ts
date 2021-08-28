@@ -4,7 +4,11 @@ import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
 
-export class CreateProductDto {
+export class ProductDto {
+    @ApiProperty()
+    @IsNotEmpty()
+    id: number;
+
     @ApiProperty()
     @IsNotEmpty()
     product_code: string;
@@ -63,4 +67,8 @@ export class CreateProductDto {
     @ApiProperty()
     @IsNotEmpty()
     created_at: Date;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    updated_at: Date;
 }

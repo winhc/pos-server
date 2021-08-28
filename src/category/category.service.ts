@@ -39,13 +39,13 @@ export class CategoryService {
   }
 
   /**
-   * find user data
+   * find category data
    * return CategoryDto[]
    */
-  async findAll(name?: string): Promise<CategoryDto[]> {
+  async findAll(category_name?: string): Promise<CategoryDto[]> {
     try {
-      if (name) {
-        const category = await this.categoryRepository.find({ where: { name } });
+      if (category_name) {
+        const category = await this.categoryRepository.find({ where: { category_name } });
         return category.map(category => toCategoryDto(category));
       } else {
         const category = await this.categoryRepository.find();
@@ -79,7 +79,7 @@ export class CategoryService {
       const category = await this.findOne(id);
       return toCategoryDto(category)
     } catch (error) {
-      throw new BadRequestException({ message: 'User not found' });
+      throw new BadRequestException({ message: 'Category not found' });
     }
   }
 

@@ -15,7 +15,7 @@ export class CategoryController {
   /**
    * create new category
    */
-  @ApiCreatedResponse({ type: CategoryDto, description: 'Response cerated user' })
+  @ApiCreatedResponse({ type: CategoryDto, description: 'Response cerated category' })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
@@ -27,16 +27,16 @@ export class CategoryController {
 
   /**
    * find all category OR
-   * search category by name 
+   * search category by category_name 
    */
   @ApiOkResponse({ type: CategoryDto, isArray: true, description: 'Response all categories or search category by name' })
-  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'category_name', required: false })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Get()
-  async findAll(@Query('name') name?: string): Promise<CategoryDto[]> {
-    return await this.categoryService.findAll(name);
+  async findAll(@Query('category_name') category_name?: string): Promise<CategoryDto[]> {
+    return await this.categoryService.findAll(category_name);
   }
 
   /**
