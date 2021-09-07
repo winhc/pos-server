@@ -22,14 +22,14 @@ export class UserService {
     const { account } = createUserDto;
     const userInDb = await this.userRepository.findOne({ where: { account } });
     if (userInDb) {
-      throw new BadRequestException({description: 'User already exit'});
+      throw new BadRequestException({ description: 'User already exit' });
     }
     const user: User = await this.userRepository.create(createUserDto);
-    try{
+    try {
       await this.userRepository.save(user);
-    }catch(error){
+    } catch (error) {
       logger.error(`create: ${error}`);
-      throw new InternalServerErrorException({description: 'Create user fail'});
+      throw new InternalServerErrorException({ description: 'Create user fail' });
     }
     return toUserDto(user);
   }
@@ -42,10 +42,10 @@ export class UserService {
     try {
       if (account) {
         const user = await this.userRepository.find({ where: { account } });
-        return user.map(user => toUserDto(user));
+        return user.map(data => toUserDto(data));
       } else {
         const user = await this.userRepository.find();
-        return user.map(user => toUserDto(user));
+        return user.map(data => toUserDto(data));
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
@@ -70,7 +70,7 @@ export class UserService {
    * find user data by id
    * return UserDto
    */
-   async findById(id: number): Promise<UserDto> {
+  async findById(id: number): Promise<UserDto> {
     try {
       const user = await this.findOne(id);
       return toUserDto(user)
@@ -83,7 +83,7 @@ export class UserService {
    * Update user row data that matches given id
    * return UserDto
    */
-   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
     const user = await this.findOne(id);
     if (!user) {
       throw new BadRequestException({ description: 'User not found' });
@@ -106,7 +106,7 @@ export class UserService {
   async remove(id: number): Promise<UserDto> {
     const user = await this.findOne(id);
     if (!user) {
-      throw new BadRequestException({description: 'User not found'});
+      throw new BadRequestException({ description: 'User not found' });
     }
     const deleteUser = await this.userRepository.remove(user);
     return toUserDto(deleteUser);
@@ -126,7 +126,7 @@ export class UserService {
       // this Exceprion may be occur
       // TODO: in future -> first deactive user status before remove this user
       logger.error(`findAccount: ${error}`);
-      throw new InternalServerErrorException({description: "Login user account is deactive"})
+      throw new InternalServerErrorException({ description: "Login user account is deactive" })
     }
   }
 

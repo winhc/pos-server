@@ -40,10 +40,10 @@ export class ProductTypeService {
     try {
       if (protuct_type_name) {
         const product_type = await this.productTypeRepository.find({ where: { protuct_type_name } });
-        return product_type.map(category => toProductTypeDto(category));
+        return product_type.map(data => toProductTypeDto(data));
       } else {
         const product_type = await this.productTypeRepository.find();
-        return product_type.map(category => toProductTypeDto(category));
+        return product_type.map(data => toProductTypeDto(data));
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
@@ -98,7 +98,7 @@ export class ProductTypeService {
   }
 
   /**
-   * Delete entre product type row data that matches given id.
+   * Delete entire product type row data that matches given id.
    * return ProductTypeDto
    */
   async remove(id: number): Promise<ProductTypeDto> {

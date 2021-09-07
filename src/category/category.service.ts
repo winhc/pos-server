@@ -46,10 +46,10 @@ export class CategoryService {
     try {
       if (category_name) {
         const category = await this.categoryRepository.find({ where: { category_name } });
-        return category.map(category => toCategoryDto(category));
+        return category.map(data => toCategoryDto(data));
       } else {
         const category = await this.categoryRepository.find();
-        return category.map(category => toCategoryDto(category));
+        return category.map(data => toCategoryDto(data));
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);

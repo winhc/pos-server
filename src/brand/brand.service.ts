@@ -10,7 +10,7 @@ const logger = new Logger('BrandService');
 
 @Injectable()
 export class BrandService {
-  constructor(@InjectRepository(Brand) private readonly brandRepository: Repository<Brand> ){}
+  constructor(@InjectRepository(Brand) private readonly brandRepository: Repository<Brand>) { }
 
   /**
    * create new brand data
@@ -41,10 +41,10 @@ export class BrandService {
     try {
       if (brand_name) {
         const brand = await this.brandRepository.find({ where: { brand_name } });
-        return brand.map(category => toBrandDto(category));
+        return brand.map(data => toBrandDto(data));
       } else {
         const brand = await this.brandRepository.find();
-        return brand.map(category => toBrandDto(category));
+        return brand.map(data => toBrandDto(data));
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
