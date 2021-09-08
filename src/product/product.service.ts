@@ -16,11 +16,15 @@ export class ProductService {
    * return ProductDto
    */
   async create(createProductDto: CreateProductDto): Promise<ProductDto> {
-    const { product_name } = createProductDto;
+    const { product_name, product_code } = createProductDto;
 
-    const productInDb = await this.productRepository.findOne({ where: { product_name } });
-    if (productInDb) {
-      throw new BadRequestException({ message: 'Product already exit' });
+    const productNameInDb = await this.productRepository.findOne({ where: { product_name } });
+    if (productNameInDb) {
+      throw new BadRequestException({ message: 'Product name already exit' });
+    }
+    const productCodeInDb = await this.productRepository.findOne({ where: { product_code } });
+    if (productCodeInDb) {
+      throw new BadRequestException({ message: 'Product code already exit' });
     }
     const product: Product = this.productRepository.create(createProductDto);
     try {
@@ -36,10 +40,14 @@ export class ProductService {
    * find product data
    * return ProductDto[]
    */
-  async findAll(protuct_name?: string): Promise<ProductDto[]> {
+  async findAll(protuct_name?: string, product_code?: string): Promise<ProductDto[]> {
     try {
       if (protuct_name) {
         const product = await this.productRepository.find({ where: { protuct_name } });
+        return product.map(data => toProductDto(data));
+      }
+      else if (product_code) {
+        const product = await this.productRepository.find({ where: { product_code } });
         return product.map(data => toProductDto(data));
       } else {
         const product = await this.productRepository.find();
