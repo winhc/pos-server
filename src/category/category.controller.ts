@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, UseInterceptors, UploadedFile, Headers, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserDto } from 'src/user/dto/user.dto';
 import { CategoryService } from './category.service';
@@ -12,6 +13,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 @UseGuards(AuthGuard())
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
+  SERVER_URL:  string  =  "http://localhost:4000/";
   /**
    * create new category
    */
@@ -23,6 +25,17 @@ export class CategoryController {
   async create(@Body() createCategoryDto: CreateCategoryDto, @Req() req: any): Promise<CategoryDto> {
     const user = <UserDto>req.user; // TODO: in feature, add operation user in category table
     return await this.categoryService.create(user, createCategoryDto);
+  }
+
+  /**
+   * upload image
+   */
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file, @Headers() headers) {
+    console.log('upload headers =>', headers);
+    console.log('upload image file=>', file);
+    return `${this.SERVER_URL}${file.path}`;
   }
 
   /**
