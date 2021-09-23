@@ -9,13 +9,11 @@ import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
-    MulterModule.register({
-      dest: './files'
-    }),
     UserModule,
     AuthModule,
     TypeOrmModule.forFeature([Category])],
   controllers: [CategoryController],
-  providers: [CategoryService]
+  providers: [CategoryService],
+  exports: [CategoryService]
 })
 export class CategoryModule { }

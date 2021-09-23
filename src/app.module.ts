@@ -8,6 +8,7 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { ProductTypeModule } from './product-type/product-type.module';
 import { BrandModule } from './brand/brand.module';
+import { AvatarModule } from './avatar/avatar.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -19,6 +20,7 @@ import { BrandModule } from './brand/brand.module';
     CategoryModule,
     ProductModule,
     ProductTypeModule,
-    BrandModule]
+    BrandModule,
+    AvatarModule]
 })
 export class AppModule { }

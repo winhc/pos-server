@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, UseInterceptors, UploadedFile, Headers, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, UseInterceptors, UploadedFile, Headers, Req, Res } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -7,13 +7,14 @@ import { CategoryService } from './category.service';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('categories')
 @Controller('categories')
 @UseGuards(AuthGuard())
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
-  SERVER_URL:  string  =  "http://localhost:4000/";
   /**
    * create new category
    */
@@ -22,20 +23,24 @@ export class CategoryController {
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Post()
-  async create(@Body() createCategoryDto: CreateCategoryDto, @Req() req: any): Promise<CategoryDto> {
+  @UseInterceptors(FileInterceptor('image_file',
+    {
+      storage: diskStorage({
+        destination: './avatars',
+        filename: (req, file, callBack) => {
+          const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
+          return callBack(null, `${randomName}${extname(file.originalname)}`)
+        }
+      })
+    }
+  )
+  )
+  async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any): Promise<any> {
     const user = <UserDto>req.user; // TODO: in feature, add operation user in category table
-    return await this.categoryService.create(user, createCategoryDto);
-  }
-
-  /**
-   * upload image
-   */
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file, @Headers() headers) {
-    console.log('upload headers =>', headers);
-    console.log('upload image file=>', file);
-    return `${this.SERVER_URL}${file.path}`;
+    const image_name = file.filename;
+    // console.log('upload image file =>', file);
+    // console.log('createCategoryDto =>', createCategoryDto);
+    return await this.categoryService.create(user, createCategoryDto, image_name);
   }
 
   /**
