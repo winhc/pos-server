@@ -16,7 +16,7 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     product_name: string;
 
     @ApiProperty()
-    image_url: string;
+    image: string;
 
     @ApiProperty()
     @IsNotEmpty()

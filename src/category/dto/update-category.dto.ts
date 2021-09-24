@@ -10,7 +10,7 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
     category_name: string;
 
     @ApiProperty({ required: false })
-    image_url?: string;
+    image?: string;
 
     @ApiProperty({ required: true })
     @IsNotEmpty()

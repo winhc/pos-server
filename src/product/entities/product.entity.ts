@@ -20,7 +20,7 @@ export class Product {
 
     @ApiProperty()
     @Column({nullable: false})
-    image_url: string;
+    image: string;
 
     @ApiProperty()
     @OneToOne(() => Category)

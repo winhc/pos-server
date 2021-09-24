@@ -14,7 +14,7 @@ export class CreateCategoryDto {
     category_name: string;
 
     @ApiProperty({ required: false })
-    image_url: string;
+    image: string;
 
     @ApiProperty({ required: false })
     @IsString()

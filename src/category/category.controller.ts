@@ -37,7 +37,7 @@ export class CategoryController {
   )
   async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any): Promise<any> {
     const user = <UserDto>req.user; // TODO: in feature, add operation user in category table
-    const image_name = file.filename;
+    const image_name = file?.filename;
     // console.log('upload image file =>', file);
     // console.log('createCategoryDto =>', createCategoryDto);
     return await this.categoryService.create(user, createCategoryDto, image_name);

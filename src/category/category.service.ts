@@ -20,8 +20,8 @@ export class CategoryService {
    * create new category data
    * return CategoryDto
    */
-  async create({ account }: UserDto, createCategoryDto: CreateCategoryDto, image_name: string): Promise<CategoryDto> {
-    createCategoryDto.image_url = image_name;
+  async create({ account }: UserDto, createCategoryDto: CreateCategoryDto, image_name?: string): Promise<CategoryDto> {
+    createCategoryDto.image = image_name;
     const { category_name } = createCategoryDto;
     // const user = this.userService.findAccount({ where: {account} });
     // logger.log(`user: ${user}`);
