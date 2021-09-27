@@ -23,7 +23,7 @@ export class CategoryController {
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Post()
-  @UseInterceptors(FileInterceptor('image_file',
+  @UseInterceptors(FileInterceptor('image',
     {
       storage: diskStorage({
         destination: './avatars',
@@ -35,11 +35,12 @@ export class CategoryController {
     }
   )
   )
-  async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any): Promise<any> {
+  async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any, @Headers() headers): Promise<any> {
     const user = <UserDto>req.user; // TODO: in feature, add operation user in category table
     const image_name = file?.filename;
-    // console.log('upload image file =>', file);
-    // console.log('createCategoryDto =>', createCategoryDto);
+    // console.log('headers =>', headers);
+    console.log('upload image file =>', file);
+    console.log('createCategoryDto =>', createCategoryDto);
     return await this.categoryService.create(user, createCategoryDto, image_name);
   }
 
@@ -77,8 +78,23 @@ export class CategoryController {
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto): Promise<CategoryDto> {
-    return await this.categoryService.update(id, updateCategoryDto);
+  @UseInterceptors(FileInterceptor('image',
+    {
+      storage: diskStorage({
+        destination: './avatars',
+        filename: (req, file, callBack) => {
+          const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
+          return callBack(null, `${randomName}${extname(file.originalname)}`)
+        }
+      })
+    }
+  )
+  )
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto, @UploadedFile() file): Promise<CategoryDto> {
+    const image_name = file?.filename;
+    console.log('upload image file =>', file);
+    console.log('updateCategoryDto =>', updateCategoryDto);
+    return await this.categoryService.update(id, updateCategoryDto, image_name);
   }
 
   /**

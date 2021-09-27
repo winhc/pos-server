@@ -85,15 +85,35 @@ export class CategoryService {
   }
 
   /**
+   * find image
+   */
+
+  async findImage(id: number, image: string): Promise<CategoryDto> {
+    try {
+      const categoryInDb = await this.findOne(id);
+      if (!categoryInDb) {
+        throw new BadRequestException({ message: 'Category not found' });
+      } else {
+        const category = await this.categoryRepository.findOne({ where: { image } });
+        return category;
+      }
+    } catch (error) {
+      throw new BadRequestException({ message: 'Category not found' });
+    }
+  }
+
+  /**
    * Update category row data that matches given id
    * return CategoryDto
    */
-  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<CategoryDto> {
+  async update(id: number, updateCategoryDto: UpdateCategoryDto, image_name?: string): Promise<CategoryDto> {
     const category = await this.findOne(id);
     if (!category) {
       throw new BadRequestException({ message: 'Category not found' });
     }
     try {
+      updateCategoryDto.image = image_name;
+      logger.log(`image => ${updateCategoryDto.image}`)
       const categoryToUpdate = Object.assign(category, updateCategoryDto);
       await this.categoryRepository.update(id, categoryToUpdate);
     } catch (error) {
