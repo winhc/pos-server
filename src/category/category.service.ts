@@ -112,8 +112,13 @@ export class CategoryService {
       throw new BadRequestException({ message: 'Category not found' });
     }
     try {
-      updateCategoryDto.image = image_name;
-      logger.log(`image => ${updateCategoryDto.image}`)
+      if(typeof image_name != 'undefined'){
+        updateCategoryDto.image = image_name;
+      }else{
+        updateCategoryDto.image = await (await this.findOne(id)).image;
+      }
+      
+      // logger.log(`image => ${updateCategoryDto.image} type ${typeof image_name}`)
       const categoryToUpdate = Object.assign(category, updateCategoryDto);
       await this.categoryRepository.update(id, categoryToUpdate);
     } catch (error) {
