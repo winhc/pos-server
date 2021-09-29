@@ -115,7 +115,7 @@ export class CategoryService {
       if(typeof image_name != 'undefined'){
         updateCategoryDto.image = image_name;
       }else{
-        updateCategoryDto.image = await (await this.findOne(id)).image;
+        updateCategoryDto.image = null;
       }
       
       // logger.log(`image => ${updateCategoryDto.image} type ${typeof image_name}`)
