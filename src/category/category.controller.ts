@@ -91,7 +91,7 @@ export class CategoryController {
   )
   )
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto, @UploadedFile() file): Promise<CategoryDto> {
-    const image_name = file?.filename;
+    const image_name = file?.filename || updateCategoryDto.image;
     console.log('upload image file =>', file);
     console.log('updateCategoryDto =>', updateCategoryDto);
     return await this.categoryService.update(id, updateCategoryDto, image_name);
