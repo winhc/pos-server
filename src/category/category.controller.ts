@@ -50,12 +50,14 @@ export class CategoryController {
    */
   @ApiOkResponse({ type: CategoryDto, isArray: true, description: 'Response all categories or search category by name' })
   @ApiQuery({ name: 'category_name', required: false })
+  @ApiQuery({ name: 'from_date', required: false })
+  @ApiQuery({ name: 'to_date', required: false })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Get()
-  async findAll(@Query('category_name') category_name?: string): Promise<CategoryDto[]> {
-    return await this.categoryService.findAll(category_name);
+  async findAll(@Query('category_name') category_name?: string, @Query('from_date') from_date?: string, @Query('to_date') to_date?: string): Promise<CategoryDto[]> {
+    return await this.categoryService.findAll(category_name, from_date, to_date);
   }
 
   /**

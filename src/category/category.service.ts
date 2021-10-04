@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { toCategoryDto } from 'src/helper/mapper/category.mapper';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -43,12 +43,22 @@ export class CategoryService {
    * find category data
    * return CategoryDto[]
    */
-  async findAll(category_name?: string): Promise<CategoryDto[]> {
+  async findAll(category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto[]> {
+    logger.log(`category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
-      if (category_name) {
-        const category = await this.categoryRepository.find({ where: { category_name } });
+      if (category_name && from_date && to_date) {
+        const category = await this.categoryRepository.createQueryBuilder('category').where(`category.category_name LIKE '%${category_name}%'`).andWhere("DATE(category.updated_at) BETWEEN :start_date AND :end_date", { start_date: from_date, end_date: to_date }).getMany();
         return category.map(data => toCategoryDto(data));
-      } else {
+      }
+      if (from_date && to_date) {
+        const category = await this.categoryRepository.createQueryBuilder('category').where("DATE(category.updated_at) BETWEEN :start_date AND :end_date", { start_date: from_date, end_date: to_date }).getMany();
+        return category.map(data => toCategoryDto(data));
+      }
+      else if (category_name) {
+        const category = await this.categoryRepository.find({ category_name: Like(`%${category_name}%`) });
+        return category.map(data => toCategoryDto(data));
+      }
+      else {
         const category = await this.categoryRepository.find();
         return category.map(data => toCategoryDto(data));
       }
@@ -118,7 +128,8 @@ export class CategoryService {
       //   updateCategoryDto.image = null;
       // }
       updateCategoryDto.image = image_name;
-      
+      updateCategoryDto.updated_at = new Date();
+
       // logger.log(`image => ${updateCategoryDto.image} type ${typeof image_name}`)
       const categoryToUpdate = Object.assign(category, updateCategoryDto);
       await this.categoryRepository.update(id, categoryToUpdate);
