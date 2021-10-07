@@ -48,7 +48,9 @@ export class CategoryController {
    * find all category OR
    * search category by category_name 
    */
-  @ApiOkResponse({ type: CategoryDto, isArray: true, description: 'Response all categories or search category by name' })
+  @ApiOkResponse({ type: CategoryDto, isArray: false, description: 'Response all categories or search category by name' })
+  @ApiQuery({ name: 'page_size', required: true })
+  @ApiQuery({ name: 'page_index', required: true })
   @ApiQuery({ name: 'category_name', required: false })
   @ApiQuery({ name: 'from_date', required: false })
   @ApiQuery({ name: 'to_date', required: false })
@@ -56,8 +58,13 @@ export class CategoryController {
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Get()
-  async findAll(@Query('category_name') category_name?: string, @Query('from_date') from_date?: string, @Query('to_date') to_date?: string): Promise<CategoryDto[]> {
-    return await this.categoryService.findAll(category_name, from_date, to_date);
+  async findAll(
+    @Query('page_size', ParseIntPipe) page_size: number,
+    @Query('page_index', ParseIntPipe) page_index: number,
+    @Query('category_name') category_name?: string,
+    @Query('from_date') from_date?: string,
+    @Query('to_date') to_date?: string): Promise<CategoryDto> {
+    return await this.categoryService.findAll(page_size, page_index, category_name, from_date, to_date);
   }
 
   /**
@@ -69,7 +76,7 @@ export class CategoryController {
   @ApiInternalServerErrorResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<CategoryDto> {
-    return this.categoryService.findOne(id);
+    return this.categoryService.findById(id);
   }
 
   /**

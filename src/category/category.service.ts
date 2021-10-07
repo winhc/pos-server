@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { toCategoryDto } from 'src/helper/mapper/category.mapper';
+import { toCategoryModel, toCategoryDto } from 'src/helper/mapper/category.mapper';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { Like, Repository } from 'typeorm';
@@ -36,31 +36,38 @@ export class CategoryService {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create category fail' });
     }
-    return toCategoryDto(category);
+    const data = toCategoryModel(category);
+    return toCategoryDto(data);
   }
 
   /**
    * find category data
    * return CategoryDto[]
    */
-  async findAll(category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto[]> {
-    logger.log(`category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
+  async findAll(page_size: number, page_index: number, category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto> {
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
       if (category_name && from_date && to_date) {
         const category = await this.categoryRepository.createQueryBuilder('category').where(`category.category_name LIKE '%${category_name}%'`).andWhere("DATE(category.updated_at) BETWEEN :start_date AND :end_date", { start_date: from_date, end_date: to_date }).getMany();
-        return category.map(data => toCategoryDto(data));
+        const data = category.map(value => toCategoryModel(value));
+        return toCategoryDto(data);
       }
       if (from_date && to_date) {
         const category = await this.categoryRepository.createQueryBuilder('category').where("DATE(category.updated_at) BETWEEN :start_date AND :end_date", { start_date: from_date, end_date: to_date }).getMany();
-        return category.map(data => toCategoryDto(data));
+        const data = category.map(value => toCategoryModel(value));
+        return toCategoryDto(data);
       }
       else if (category_name) {
         const category = await this.categoryRepository.find({ category_name: Like(`%${category_name}%`) });
-        return category.map(data => toCategoryDto(data));
+        const data = category.map(value => toCategoryModel(value));
+        return toCategoryDto(data);
       }
       else {
-        const category = await this.categoryRepository.find();
-        return category.map(data => toCategoryDto(data));
+      const [category, count] = await this.categoryRepository.findAndCount({ skip: page_index - 1, take: page_size });
+      logger.log(`data => ${category}`)
+      logger.log(`total_count => ${count}`)
+      const data = category.map(value => toCategoryModel(value));
+      return toCategoryDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
@@ -88,7 +95,8 @@ export class CategoryService {
   async findById(id: number): Promise<CategoryDto> {
     try {
       const category = await this.findOne(id);
-      return toCategoryDto(category)
+      const data = toCategoryModel(category);
+      return toCategoryDto(data);
     } catch (error) {
       throw new BadRequestException({ message: 'Category not found' });
     }
@@ -105,7 +113,8 @@ export class CategoryService {
         throw new BadRequestException({ message: 'Category not found' });
       } else {
         const category = await this.categoryRepository.findOne({ where: { image } });
-        return category;
+        const data = toCategoryModel(category);
+        return toCategoryDto(data);
       }
     } catch (error) {
       throw new BadRequestException({ message: 'Category not found' });
@@ -138,7 +147,8 @@ export class CategoryService {
       throw new InternalServerErrorException({ message: 'Update fail' })
     }
     const updateCategory = await this.findOne(category.id);
-    return toCategoryDto(updateCategory);
+    const data = toCategoryModel(updateCategory);
+    return toCategoryDto(data);
   }
 
   /**
@@ -150,6 +160,7 @@ export class CategoryService {
       throw new BadRequestException({ message: 'Category not found' });
     }
     const deleteCategory = await this.categoryRepository.remove(category);
-    return toCategoryDto(deleteCategory);
+    const data = toCategoryModel(deleteCategory);
+    return toCategoryDto(data);
   }
 }

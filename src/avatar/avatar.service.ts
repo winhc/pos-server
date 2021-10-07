@@ -6,6 +6,6 @@ export class AvatarService {
     constructor(private readonly categoryService: CategoryService) { }
 
     async findCategoryImage(id: number, name: string): Promise<String> {
-        return (await this.categoryService.findImage(id, name)).image;
+        return (await this.categoryService.findImage(id, name)).data['image'];
     }
 }
