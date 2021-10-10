@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { toCategoryModel, toCategoryDto } from 'src/helper/mapper/category.mapper';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
-import { Like, Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -45,29 +45,65 @@ export class CategoryService {
    * return CategoryDto[]
    */
   async findAll(page_size: number, page_index: number, category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto> {
-    logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
+    // logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
+      const fromIndex = (page_index - 1) * page_size;
+      const takeLimit = page_size;
+      // logger.log(`formIndex: ${fromIndex}, takeLimit: ${takeLimit}`)
       if (category_name && from_date && to_date) {
-        const category = await this.categoryRepository.createQueryBuilder('category').where(`category.category_name LIKE '%${category_name}%'`).andWhere("DATE(category.updated_at) BETWEEN :start_date AND :end_date", { start_date: from_date, end_date: to_date }).getMany();
+        const category = await this.categoryRepository.createQueryBuilder('category')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: from_date, end_date: to_date })
+          .andWhere('category.category_name LIKE :c_name', { c_name: `%${category_name}%` })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('category.id')
+          .getRawMany();
+        // logger.log(`category => ${category}`);
         const data = category.map(value => toCategoryModel(value));
-        return toCategoryDto(data);
+        // logger.log(`data => ${data}, count => ${category[0]?.count}`);
+        const count = parseInt(category[0]?.count);
+        return toCategoryDto(data, count);
       }
-      if (from_date && to_date) {
-        const category = await this.categoryRepository.createQueryBuilder('category').where("DATE(category.updated_at) BETWEEN :start_date AND :end_date", { start_date: from_date, end_date: to_date }).getMany();
+      else if (from_date && to_date) {
+        const category = await this.categoryRepository.createQueryBuilder('category')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: from_date, end_date: to_date })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('category.id')
+          .getRawMany();
+
+        // logger.log(`category => ${category}`);
         const data = category.map(value => toCategoryModel(value));
-        return toCategoryDto(data);
+        // logger.log(`data => ${data}, count => ${category[0]?.count}`);
+        const count = parseInt(category[0]?.count);
+        return toCategoryDto(data, count);
+
       }
       else if (category_name) {
-        const category = await this.categoryRepository.find({ category_name: Like(`%${category_name}%`) });
+        const category = await this.categoryRepository.createQueryBuilder('category')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('category.category_name LIKE :c_name', { c_name: `%${category_name}%` })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('category.id')
+          .getRawMany();
+        // logger.log(`category => ${category}`);
         const data = category.map(value => toCategoryModel(value));
-        return toCategoryDto(data);
+        // logger.log(`data => ${data}, count => ${category[0]?.count}`);
+        const count = parseInt(category[0]?.count);
+        return toCategoryDto(data, count);
       }
       else {
-      const [category, count] = await this.categoryRepository.findAndCount({ skip: page_index - 1, take: page_size });
-      logger.log(`data => ${category}`)
-      logger.log(`total_count => ${count}`)
-      const data = category.map(value => toCategoryModel(value));
-      return toCategoryDto(data, count);
+        const [category, count] = await this.categoryRepository.findAndCount({ skip: fromIndex, take: takeLimit });
+        // logger.log(`data => ${category}`)
+        // logger.log(`total_count => ${count}`)
+        const data = category.map(value => toCategoryModel(value));
+        return toCategoryDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);

@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Product } from "src/product/entities/product.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Brand {
@@ -8,13 +9,13 @@ export class Brand {
     id: number;
 
     @ApiProperty()
-    @Column({nullable: false, unique: true})
+    @Column({ nullable: false, unique: true })
     brand_name: string;
 
     @ApiProperty()
-    @Column({nullable: true})
+    @Column({ nullable: true })
     remarks: string;
-    
+
     @ApiProperty()
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false })
     created_at: Date;
@@ -22,4 +23,7 @@ export class Brand {
     @ApiProperty()
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: true })
     updated_at: Date;
+
+    @OneToMany(type => Product, product => product.brand)
+    products: Product[]
 }

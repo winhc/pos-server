@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product {
@@ -11,38 +11,35 @@ export class Product {
     id: number;
 
     @ApiProperty()
-    @Column({nullable: false, unique: true})
+    @Column({ nullable: false, unique: true })
     product_code: string;
 
     @ApiProperty()
-    @Column({nullable: false, unique: true})
+    @Column({ nullable: false, unique: true })
     product_name: string;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     image: string;
 
     @ApiProperty()
-    @OneToOne(() => Category)
-    @JoinColumn()
+    @ManyToOne(type => Category, category => category.products)
     category: Category;
 
     @ApiProperty()
-    @OneToOne(() => ProductType)
-    @JoinColumn()
+    @ManyToOne(type => ProductType, product_type => product_type.products)
     product_type: ProductType;
 
     @ApiProperty()
-    @OneToOne(() => Brand)
-    @JoinColumn()
+    @ManyToOne(type => Brand, brand => brand.products)
     brand: Brand;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     buy_unit_price: number;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     sell_unit_price: number;
 
     @ApiProperty()
@@ -50,25 +47,25 @@ export class Product {
     expiry_at: Date;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     tax: number;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     quantity: number;
 
     @ApiProperty()
-    @Column({nullable: false})
+    @Column({ nullable: false })
     alert_quantity: number;
 
     @ApiProperty()
-    @Column({nullable: true})
+    @Column({ nullable: true })
     for_sale: boolean;
 
     @ApiProperty()
-    @Column({nullable: true})
+    @Column({ nullable: true })
     remarks: string;
-    
+
     @ApiProperty()
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false })
     created_at: Date;
