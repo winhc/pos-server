@@ -12,5 +12,5 @@ export class CreateBrandDto {
     remarks?: string;
 
     @ApiProperty({type: 'string', format: 'date-time', required: false})
-    created_at: Date;
+    created_at?: Date;
 }

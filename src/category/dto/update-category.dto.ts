@@ -14,7 +14,7 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
 
     @ApiProperty({ required: true })
     @IsNotEmpty()
-    remarks?: string;
+    remarks: string;
 
     @ApiProperty({ type: 'string', format: 'date-time', required: false })
     updated_at: Date;

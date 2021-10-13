@@ -133,6 +133,7 @@ export class BrandService {
       throw new BadRequestException({ message: 'Brand not found' });
     }
     try {
+      updateBrandDto.updated_at = new Date();
       const brandToUpdate = Object.assign(brand, updateBrandDto);
       await this.brandRepository.update(id, brandToUpdate);
     } catch (error) {

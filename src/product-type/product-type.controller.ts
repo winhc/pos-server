@@ -28,14 +28,23 @@ export class ProductTypeController {
    * find all product type OR
    * search product type by product_type_name
    */
-  @ApiOkResponse({ type: ProductTypeDto, isArray: true, description: 'Response all product type or search product type by product_type_name' })
+  @ApiOkResponse({ type: ProductTypeDto, isArray: false, description: 'Response all product type or search product type by product_type_name' })
+  @ApiQuery({ name: 'page_size', required: true })
+  @ApiQuery({ name: 'page_index', required: true })
   @ApiQuery({ name: 'product_type_name', required: false })
+  @ApiQuery({ name: 'from_date', required: false })
+  @ApiQuery({ name: 'to_date', required: false })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Get()
-  async findAll(@Query('product_type_name') product_type_name?: string): Promise<ProductTypeDto[]> {
-    return await this.productTypeService.findAll(product_type_name);
+  async findAll(
+    @Query('page_size', ParseIntPipe) page_size: number,
+    @Query('page_index', ParseIntPipe) page_index: number,
+    @Query('product_type_name') product_type_name?: string,
+    @Query('from_date') from_date?: string,
+    @Query('to_date') to_date?: string): Promise<ProductTypeDto> {
+    return await this.productTypeService.findAll(page_size, page_index, product_type_name, from_date, to_date);
   }
 
   /**
@@ -47,7 +56,7 @@ export class ProductTypeController {
   @ApiInternalServerErrorResponse()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<ProductTypeDto> {
-    return this.productTypeService.findOne(id);
+    return this.productTypeService.findById(id);
   }
 
   /**

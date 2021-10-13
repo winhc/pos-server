@@ -10,7 +10,7 @@ export class ProductType {
 
     @ApiProperty()
     @Column({ nullable: false, unique: true })
-    protuct_type_name: string;
+    product_type_name: string;
 
     @ApiProperty()
     @Column({ nullable: true })

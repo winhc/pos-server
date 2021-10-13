@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { toProductTypeDto } from 'src/helper/mapper/product-type.mapper';
+import { toProductTypeDto, toProductTypeModel } from 'src/helper/mapper/product-type.mapper';
+import { formattedDate } from 'src/helper/utils';
 import { Repository } from 'typeorm';
 import { CreateProductTypeDto } from './dto/create-product-type.dto';
 import { ProductTypeDto } from './dto/product-type.dto';
@@ -16,9 +17,9 @@ export class ProductTypeService {
    * return ProductTypeDto
    */
   async create(createProductTypeDto: CreateProductTypeDto): Promise<ProductTypeDto> {
-    const { protuct_type_name } = createProductTypeDto;
+    const { product_type_name } = createProductTypeDto;
 
-    const productTypeInDb = await this.productTypeRepository.findOne({ where: { protuct_type_name } });
+    const productTypeInDb = await this.productTypeRepository.findOne({ where: { product_type_name } });
     if (productTypeInDb) {
       throw new BadRequestException({ message: 'Product type already exit' });
     }
@@ -29,21 +30,64 @@ export class ProductTypeService {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create product type fail' });
     }
-    return toProductTypeDto(productType);
+    const data = toProductTypeModel(productType)
+    return toProductTypeDto(data);
   }
 
   /**
    * find product type data
-   * return ProductTypeDto[]
+   * return ProductTypeDto
    */
-  async findAll(protuct_type_name?: string): Promise<ProductTypeDto[]> {
+  async findAll(page_size: number, page_index: number, product_type_name?: string, from_date?: string, to_date?: string): Promise<ProductTypeDto> {
     try {
-      if (protuct_type_name) {
-        const product_type = await this.productTypeRepository.find({ where: { protuct_type_name } });
-        return product_type.map(data => toProductTypeDto(data));
-      } else {
-        const product_type = await this.productTypeRepository.find();
-        return product_type.map(data => toProductTypeDto(data));
+      const fromIndex = (page_index - 1) * page_size;
+      const takeLimit = page_size;
+      if (product_type_name && from_date && to_date) {
+        const productType = await this.productTypeRepository.createQueryBuilder('product_type')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('DATE(product_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
+          .andWhere('product_type.product_type_name LIKE :pt_name', { pt_name: `%${product_type_name}%` })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('product_type.id')
+          .getRawMany();
+        const data = productType.map(value => toProductTypeModel(value));
+        const count = parseInt(productType[0]?.count);
+        return toProductTypeDto(data, count);
+      }
+      else if (from_date && to_date) {
+        const productType = await this.productTypeRepository.createQueryBuilder('product_type')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('DATE(product_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('product_type.id')
+          .getRawMany();
+
+        const data = productType.map(value => toProductTypeModel(value));
+        const count = parseInt(productType[0]?.count);
+        return toProductTypeDto(data, count);
+
+      }
+      else if (product_type_name) {
+        const productType = await this.productTypeRepository.createQueryBuilder('product_type')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('product_type.product_type_name LIKE :pt_name', { pt_name: `%${product_type_name}%` })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('product_type.id')
+          .getRawMany();
+        const data = productType.map(value => toProductTypeModel(value));
+        const count = parseInt(productType[0]?.count);
+        return toProductTypeDto(data, count);
+      }
+      else {
+        const [productType, count] = await this.productTypeRepository.findAndCount({ skip: fromIndex, take: takeLimit });
+        const data = productType.map(value => toProductTypeModel(value));
+        return toProductTypeDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
@@ -70,8 +114,9 @@ export class ProductTypeService {
    */
   async findById(id: number): Promise<ProductTypeDto> {
     try {
-      const product_type = await this.findOne(id);
-      return toProductTypeDto(product_type)
+      const productType = await this.findOne(id);
+      const data = toProductTypeModel(productType)
+      return toProductTypeDto(data);
     } catch (error) {
       throw new BadRequestException({ message: 'Product type not found' });
     }
@@ -87,6 +132,7 @@ export class ProductTypeService {
       throw new BadRequestException({ message: 'Product type not found' });
     }
     try {
+      updateProductTypeDto.updated_at = new Date();
       const productTypeToUpdate = Object.assign(product_type, updateProductTypeDto);
       await this.productTypeRepository.update(id, productTypeToUpdate);
     } catch (error) {
@@ -94,7 +140,8 @@ export class ProductTypeService {
       throw new InternalServerErrorException({ message: 'Update product type fail' })
     }
     const updateProductType = await this.findOne(product_type.id);
-    return toProductTypeDto(updateProductType);
+    const data = toProductTypeModel(updateProductType);
+    return toProductTypeDto(data);
   }
 
   /**
@@ -107,6 +154,7 @@ export class ProductTypeService {
       throw new BadRequestException({ message: 'Product type not found' });
     }
     const deleteProductType = await this.productTypeRepository.remove(product_type);
-    return toProductTypeDto(deleteProductType);
+    const data = toProductTypeModel(deleteProductType);
+    return toProductTypeDto(data);
   }
 }

@@ -1,18 +1,19 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { CreateProductTypeDto } from './create-product-type.dto';
 
 export class UpdateProductTypeDto extends PartialType(CreateProductTypeDto) {
-    @ApiProperty()
+    @ApiProperty({ required: true })
+    @IsString()
     @IsNotEmpty()
-    protuct_type_name: string;
+    product_type_name: string;
 
-    @ApiProperty()
+    @ApiProperty({ required: true })
+    @IsString()
     @IsNotEmpty()
     remarks: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    updated_at: Date;
+    @ApiProperty({ type: 'string', format: 'date-time', required: false })
+    updated_at?: Date;
 }

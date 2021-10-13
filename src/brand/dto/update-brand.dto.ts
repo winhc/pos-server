@@ -12,8 +12,8 @@ export class UpdateBrandDto extends PartialType(CreateBrandDto) {
     @ApiProperty({ required: true })
     @IsString()
     @IsNotEmpty()
-    remarks?: string;
+    remarks: string;
 
     @ApiProperty({type: 'string', format: 'date-time', required: false})
-    updated_at: Date;
+    updated_at?: Date;
 }

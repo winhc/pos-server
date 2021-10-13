@@ -1,15 +1,16 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateProductTypeDto {
-    @ApiProperty()
+    @ApiProperty({ required: true })
+    @IsString()
     @IsNotEmpty()
-    protuct_type_name: string;
+    product_type_name: string;
 
-    @ApiProperty()
-    remarks: string;
-    
-    @ApiProperty()
-    @IsNotEmpty()
-    created_at: Date;
+    @ApiProperty({ required: false })
+    @IsString()
+    remarks?: string;
+
+    @ApiProperty({ type: 'string', format: 'date-time', required: false })
+    created_at?: Date;
 }

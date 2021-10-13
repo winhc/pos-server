@@ -8,6 +8,5 @@ export class BrandDto {
     data: BrandModel[] | BrandModel;
 
     @ApiProperty()
-    @IsNotEmpty()
-    count: number;
+    count?: number;
 }
