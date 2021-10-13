@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
-import { CategoryModel } from "../model/category.model";
+import { CategoryModel } from "../../helper/model/category.model";
 
 export class CategoryDto {
 

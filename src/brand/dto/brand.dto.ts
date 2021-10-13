@@ -1,23 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
+import { BrandModel } from "../../helper/model/brand.model";
 
 export class BrandDto {
     @ApiProperty()
     @IsNotEmpty()
-    id: number;
+    data: BrandModel[] | BrandModel;
 
     @ApiProperty()
     @IsNotEmpty()
-    brand_name: string;
-
-    @ApiProperty()
-    remarks: string;
-    
-    @ApiProperty()
-    @IsNotEmpty()
-    created_at: Date;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    updated_at: Date;
+    count: number;
 }

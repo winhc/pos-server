@@ -11,7 +11,6 @@ export class CreateBrandDto {
     @IsString()
     remarks?: string;
 
-    @ApiProperty({type: 'string', format: 'date-time', required: true})
-    @IsNotEmpty()
+    @ApiProperty({type: 'string', format: 'date-time', required: false})
     created_at: Date;
 }

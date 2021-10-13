@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { toBrandDto } from 'src/helper/mapper/brand.mapper';
+import { toBrandDto, toBrandModel } from 'src/helper/mapper/brand.mapper';
+import { formattedDate } from 'src/helper/utils';
 import { Repository } from 'typeorm';
 import { BrandDto } from './dto/brand.dto';
 import { CreateBrandDto } from './dto/create-brand.dto';
@@ -30,21 +31,64 @@ export class BrandService {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create brand fail' });
     }
-    return toBrandDto(brand);
+    const data = toBrandModel(brand);
+    return toBrandDto(data);
   }
 
   /**
    * find brand data
-   * return BrandDto[]
+   * return BrandDto
    */
-  async findAll(brand_name?: string): Promise<BrandDto[]> {
+  async findAll(page_size: number, page_index: number, brand_name?: string, from_date?: string, to_date?: string): Promise<BrandDto> {
     try {
-      if (brand_name) {
-        const brand = await this.brandRepository.find({ where: { brand_name } });
-        return brand.map(data => toBrandDto(data));
-      } else {
-        const brand = await this.brandRepository.find();
-        return brand.map(data => toBrandDto(data));
+      const fromIndex = (page_index - 1) * page_size;
+      const takeLimit = page_size;
+      if (brand_name && from_date && to_date) {
+        const brand = await this.brandRepository.createQueryBuilder('brand')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('DATE(brand.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
+          .andWhere('brand.brand_name LIKE :b_name', { b_name: `%${brand_name}%` })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('brand.id')
+          .getRawMany();
+        const data = brand.map(value => toBrandModel(value));
+        const count = parseInt(brand[0]?.count);
+        return toBrandDto(data, count);
+      }
+      else if (from_date && to_date) {
+        const brand = await this.brandRepository.createQueryBuilder('brand')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('DATE(brand.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('brand.id')
+          .getRawMany();
+
+        const data = brand.map(value => toBrandModel(value));
+        const count = parseInt(brand[0]?.count);
+        return toBrandDto(data, count);
+
+      }
+      else if (brand_name) {
+        const brand = await this.brandRepository.createQueryBuilder('brand')
+          .select('*')
+          .addSelect('COUNT(*) OVER () AS count')
+          .where('brand.brand_name LIKE :b_name', { b_name: `%${brand_name}%` })
+          .skip(fromIndex)
+          .take(takeLimit)
+          .orderBy('brand.id')
+          .getRawMany();
+        const data = brand.map(value => toBrandModel(value));
+        const count = parseInt(brand[0]?.count);
+        return toBrandDto(data, count);
+      }
+      else {
+        const [brand, count] = await this.brandRepository.findAndCount({ skip: fromIndex, take: takeLimit });
+        const data = brand.map(value => toBrandModel(value));
+        return toBrandDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
@@ -72,7 +116,8 @@ export class BrandService {
   async findById(id: number): Promise<BrandDto> {
     try {
       const brand = await this.findOne(id);
-      return toBrandDto(brand)
+      const data = toBrandModel(brand);
+      return toBrandDto(data)
     } catch (error) {
       throw new BadRequestException({ message: 'Brand not found' });
     }
@@ -95,7 +140,8 @@ export class BrandService {
       throw new InternalServerErrorException({ message: 'Update brand fail' })
     }
     const updateBrand = await this.findOne(brand.id);
-    return toBrandDto(updateBrand);
+    const data = toBrandModel(updateBrand);
+    return toBrandDto(data)
   }
 
   /**
@@ -108,6 +154,7 @@ export class BrandService {
       throw new BadRequestException({ message: 'Brand not found' });
     }
     const deleteBrand = await this.brandRepository.remove(brand);
-    return toBrandDto(deleteBrand);
+    const data = toBrandModel(deleteBrand);
+    return toBrandDto(data)
   }
 }

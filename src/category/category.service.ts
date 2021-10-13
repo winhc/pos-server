@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { toCategoryModel, toCategoryDto } from 'src/helper/mapper/category.mapper';
+import { formattedDate } from 'src/helper/utils';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
-import { Between, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -42,10 +43,10 @@ export class CategoryService {
 
   /**
    * find category data
-   * return CategoryDto[]
+   * return CategoryDto
    */
   async findAll(page_size: number, page_index: number, category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto> {
-    // logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
       const fromIndex = (page_index - 1) * page_size;
       const takeLimit = page_size;
@@ -54,7 +55,7 @@ export class CategoryService {
         const category = await this.categoryRepository.createQueryBuilder('category')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
-          .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: from_date, end_date: to_date })
+          .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .andWhere('category.category_name LIKE :c_name', { c_name: `%${category_name}%` })
           .skip(fromIndex)
           .take(takeLimit)
@@ -70,7 +71,7 @@ export class CategoryService {
         const category = await this.categoryRepository.createQueryBuilder('category')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
-          .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: from_date, end_date: to_date })
+          .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
           .orderBy('category.id')
