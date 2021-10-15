@@ -19,7 +19,7 @@ export class Product {
     product_name: string;
 
     @ApiProperty()
-    @Column({ nullable: false })
+    @Column({ nullable: true })
     image: string;
 
     @ApiProperty()
@@ -47,7 +47,7 @@ export class Product {
     expiry_at: Date;
 
     @ApiProperty()
-    @Column({ nullable: false })
+    @Column({ nullable: true })
     tax: number;
 
     @ApiProperty()

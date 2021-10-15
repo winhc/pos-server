@@ -14,12 +14,12 @@ export class CreateCategoryDto {
     category_name: string;
 
     @ApiProperty({ required: false })
-    image: string;
+    image?: string;
 
     @ApiProperty({ required: false })
     @IsString()
     remarks?: string;
 
     @ApiProperty({ type: 'string', format: 'date-time', required: false })
-    created_at: Date;
+    created_at?: Date;
 }

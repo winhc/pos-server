@@ -1,66 +1,63 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { IsBoolean, IsNotEmpty } from "class-validator";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
 
 export class CreateProductDto {
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     product_code: string;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     product_name: string;
 
-    @ApiProperty()
-    image: string;
+    @ApiProperty({required: false})
+    image?: string;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     category: Category;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     product_type: ProductType;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     brand: Brand;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     buy_unit_price: number;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     sell_unit_price: number;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    expiry_at: Date;
+    @ApiProperty({required: false})
+    expiry_at?: Date;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     tax: number;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     quantity: number;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     alert_quantity: number;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNotEmpty()
     for_sale: boolean;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    remarks: string;
+    @ApiProperty({required: false})
+    remarks?: string;
     
-    @ApiProperty()
-    @IsNotEmpty()
-    created_at: Date;
+    @ApiProperty({required: false})
+    created_at?: Date;
 }

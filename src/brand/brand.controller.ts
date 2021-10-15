@@ -29,8 +29,8 @@ export class BrandController {
    * search brand by brand_name
    */
   @ApiOkResponse({ type: BrandDto, isArray: false, description: 'Response all brands or search brand by brand_name' })
-  @ApiQuery({ name: 'page_size', required: true })
-  @ApiQuery({ name: 'page_index', required: true })
+  @ApiQuery({ name: 'page_size', required: false })
+  @ApiQuery({ name: 'page_index', required: false })
   @ApiQuery({ name: 'brand_name', required: false })
   @ApiQuery({ name: 'from_date', required: false })
   @ApiQuery({ name: 'to_date', required: false })
@@ -39,12 +39,12 @@ export class BrandController {
   @ApiInternalServerErrorResponse()
   @Get()
   async findAll(
-    @Query('page_size', ParseIntPipe) page_size: number,
-    @Query('page_index', ParseIntPipe) page_index: number,
+    @Query('page_size') page_size?: number,
+    @Query('page_index') page_index?: number,
     @Query('brand_name') brand_name?: string,
     @Query('from_date') from_date?: string,
     @Query('to_date') to_date?: string): Promise<BrandDto> {
-    return await this.brandService.findAll(page_size, page_index, brand_name, from_date, to_date);
+    return await this.brandService.findAll(+page_size, +page_index, brand_name, from_date, to_date);
   }
 
   /**

@@ -39,11 +39,11 @@ export class BrandService {
    * find brand data
    * return BrandDto
    */
-  async findAll(page_size: number, page_index: number, brand_name?: string, from_date?: string, to_date?: string): Promise<BrandDto> {
+  async findAll(page_size?: number, page_index?: number, brand_name?: string, from_date?: string, to_date?: string): Promise<BrandDto> {
     try {
-      const fromIndex = (page_index - 1) * page_size;
-      const takeLimit = page_size;
-      if (brand_name && from_date && to_date) {
+      if (brand_name && from_date && to_date && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const brand = await this.brandRepository.createQueryBuilder('brand')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -57,7 +57,9 @@ export class BrandService {
         const count = parseInt(brand[0]?.count);
         return toBrandDto(data, count);
       }
-      else if (from_date && to_date) {
+      else if (from_date && to_date && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const brand = await this.brandRepository.createQueryBuilder('brand')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -72,7 +74,9 @@ export class BrandService {
         return toBrandDto(data, count);
 
       }
-      else if (brand_name) {
+      else if (brand_name && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const brand = await this.brandRepository.createQueryBuilder('brand')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -85,8 +89,14 @@ export class BrandService {
         const count = parseInt(brand[0]?.count);
         return toBrandDto(data, count);
       }
-      else {
+      else if (page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const [brand, count] = await this.brandRepository.findAndCount({ skip: fromIndex, take: takeLimit });
+        const data = brand.map(value => toBrandModel(value));
+        return toBrandDto(data, count);
+      } else {
+        const [brand, count] = await this.brandRepository.findAndCount();
         const data = brand.map(value => toBrandModel(value));
         return toBrandDto(data, count);
       }

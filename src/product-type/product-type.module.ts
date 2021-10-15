@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [AuthModule,TypeOrmModule.forFeature([ProductType])],
   controllers: [ProductTypeController],
-  providers: [ProductTypeService]
+  providers: [ProductTypeService],
+  exports: [ProductTypeService]
 })
 export class ProductTypeModule {}

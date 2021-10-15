@@ -26,7 +26,7 @@ export class CategoryController {
   @UseInterceptors(FileInterceptor('image',
     {
       storage: diskStorage({
-        destination: './avatars',
+        destination: './avatars/category',
         filename: (req, file, callBack) => {
           const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
           return callBack(null, `${randomName}${extname(file.originalname)}`)
@@ -49,8 +49,8 @@ export class CategoryController {
    * search category by category_name 
    */
   @ApiOkResponse({ type: CategoryDto, isArray: false, description: 'Response all categories or search category by name' })
-  @ApiQuery({ name: 'page_size', required: true })
-  @ApiQuery({ name: 'page_index', required: true })
+  @ApiQuery({ name: 'page_size', required: false })
+  @ApiQuery({ name: 'page_index', required: false })
   @ApiQuery({ name: 'category_name', required: false })
   @ApiQuery({ name: 'from_date', required: false })
   @ApiQuery({ name: 'to_date', required: false })
@@ -59,12 +59,12 @@ export class CategoryController {
   @ApiInternalServerErrorResponse()
   @Get()
   async findAll(
-    @Query('page_size', ParseIntPipe) page_size: number,
-    @Query('page_index', ParseIntPipe) page_index: number,
+    @Query('page_size') page_size?: number,
+    @Query('page_index') page_index?: number,
     @Query('category_name') category_name?: string,
     @Query('from_date') from_date?: string,
     @Query('to_date') to_date?: string): Promise<CategoryDto> {
-    return await this.categoryService.findAll(page_size, page_index, category_name, from_date, to_date);
+    return await this.categoryService.findAll(+page_size, +page_index, category_name, from_date, to_date);
   }
 
   /**
@@ -90,7 +90,7 @@ export class CategoryController {
   @UseInterceptors(FileInterceptor('image',
     {
       storage: diskStorage({
-        destination: './avatars',
+        destination: './avatars/category',
         filename: (req, file, callBack) => {
           const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
           return callBack(null, `${randomName}${extname(file.originalname)}`)

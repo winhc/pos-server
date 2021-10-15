@@ -38,11 +38,11 @@ export class ProductTypeService {
    * find product type data
    * return ProductTypeDto
    */
-  async findAll(page_size: number, page_index: number, product_type_name?: string, from_date?: string, to_date?: string): Promise<ProductTypeDto> {
+  async findAll(page_size?: number, page_index?: number, product_type_name?: string, from_date?: string, to_date?: string): Promise<ProductTypeDto> {
     try {
-      const fromIndex = (page_index - 1) * page_size;
-      const takeLimit = page_size;
       if (product_type_name && from_date && to_date) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const productType = await this.productTypeRepository.createQueryBuilder('product_type')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -56,7 +56,9 @@ export class ProductTypeService {
         const count = parseInt(productType[0]?.count);
         return toProductTypeDto(data, count);
       }
-      else if (from_date && to_date) {
+      else if (from_date && to_date && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const productType = await this.productTypeRepository.createQueryBuilder('product_type')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -71,7 +73,9 @@ export class ProductTypeService {
         return toProductTypeDto(data, count);
 
       }
-      else if (product_type_name) {
+      else if (product_type_name && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const productType = await this.productTypeRepository.createQueryBuilder('product_type')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -84,8 +88,14 @@ export class ProductTypeService {
         const count = parseInt(productType[0]?.count);
         return toProductTypeDto(data, count);
       }
-      else {
+      else if (page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const [productType, count] = await this.productTypeRepository.findAndCount({ skip: fromIndex, take: takeLimit });
+        const data = productType.map(value => toProductTypeModel(value));
+        return toProductTypeDto(data, count);
+      } else {
+        const [productType, count] = await this.productTypeRepository.findAndCount();
         const data = productType.map(value => toProductTypeModel(value));
         return toProductTypeDto(data, count);
       }

@@ -23,12 +23,16 @@ export class CategoryService {
    */
   async create({ account }: UserDto, createCategoryDto: CreateCategoryDto, image_name?: string): Promise<CategoryDto> {
     createCategoryDto.image = image_name;
-    const { category_name } = createCategoryDto;
+    const { category_name, category_code } = createCategoryDto;
     // const user = this.userService.findAccount({ where: {account} });
     // logger.log(`user: ${user}`);
-    const categoryInDb = await this.categoryRepository.findOne({ where: { category_name } });
-    if (categoryInDb) {
-      throw new BadRequestException({ message: 'Category already exit' });
+    const categoryNameInDb = await this.categoryRepository.findOne({ where: { category_name } });
+    if (categoryNameInDb) {
+      throw new BadRequestException({ message: 'Category name already exit' });
+    }
+    const categoryCodeInDb = await this.categoryRepository.findOne({ where: { category_code } });
+    if (categoryCodeInDb) {
+      throw new BadRequestException({ message: 'Category code already exit' });
     }
     const category: Category = this.categoryRepository.create(createCategoryDto);
     try {
@@ -45,13 +49,12 @@ export class CategoryService {
    * find category data
    * return CategoryDto
    */
-  async findAll(page_size: number, page_index: number, category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto> {
+  async findAll(page_size?: number, page_index?: number, category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto> {
     logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
-      const fromIndex = (page_index - 1) * page_size;
-      const takeLimit = page_size;
-      // logger.log(`formIndex: ${fromIndex}, takeLimit: ${takeLimit}`)
-      if (category_name && from_date && to_date) {
+      if (category_name && from_date && to_date && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const category = await this.categoryRepository.createQueryBuilder('category')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -67,7 +70,9 @@ export class CategoryService {
         const count = parseInt(category[0]?.count);
         return toCategoryDto(data, count);
       }
-      else if (from_date && to_date) {
+      else if (from_date && to_date && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const category = await this.categoryRepository.createQueryBuilder('category')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -84,7 +89,9 @@ export class CategoryService {
         return toCategoryDto(data, count);
 
       }
-      else if (category_name) {
+      else if (category_name && page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const category = await this.categoryRepository.createQueryBuilder('category')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
@@ -99,10 +106,16 @@ export class CategoryService {
         const count = parseInt(category[0]?.count);
         return toCategoryDto(data, count);
       }
-      else {
+      else if(page_size && page_index) {
+        const fromIndex = (page_index - 1) * page_size;
+        const takeLimit = page_size;
         const [category, count] = await this.categoryRepository.findAndCount({ skip: fromIndex, take: takeLimit });
         // logger.log(`data => ${category}`)
         // logger.log(`total_count => ${count}`)
+        const data = category.map(value => toCategoryModel(value));
+        return toCategoryDto(data, count);
+      } else {
+        const [category, count] = await this.categoryRepository.findAndCount();
         const data = category.map(value => toCategoryModel(value));
         return toCategoryDto(data, count);
       }
