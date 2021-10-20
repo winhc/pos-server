@@ -1,5 +1,5 @@
-import { IsAlpha, IsAlphanumeric, IsNotEmpty } from "class-validator";
-import UserType from "../../helper/constant/user-type.constant";
+import { IsNotEmpty } from "class-validator";
+import { UserType } from "src/user-type/entities/user-type.entity";
 
 export class UserLoginReplyDto {
     @IsNotEmpty()
@@ -12,5 +12,5 @@ export class UserLoginReplyDto {
     account: string;
 
     @IsNotEmpty()
-    type: UserType;
+    user_type: UserType;
 }

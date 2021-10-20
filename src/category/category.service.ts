@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { toCategoryModel, toCategoryDto } from 'src/helper/mapper/category.mapper';
+import { UserModel } from 'src/helper/model/user.model';
 import { formattedDate } from 'src/helper/utils';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
@@ -21,7 +22,7 @@ export class CategoryService {
    * create new category data
    * return CategoryDto
    */
-  async create({ account }: UserDto, createCategoryDto: CreateCategoryDto, image_name?: string): Promise<CategoryDto> {
+  async create({ account }: UserModel, createCategoryDto: CreateCategoryDto, image_name?: string): Promise<CategoryDto> {
     createCategoryDto.image = image_name;
     const { category_name, category_code } = createCategoryDto;
     // const user = this.userService.findAccount({ where: {account} });

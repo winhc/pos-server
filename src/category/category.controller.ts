@@ -9,6 +9,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { UserModel } from 'src/helper/model/user.model';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -36,7 +37,7 @@ export class CategoryController {
   )
   )
   async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any, @Headers() headers): Promise<any> {
-    const user = <UserDto>req.user; // TODO: in feature, add operation user in category table
+    const user = <UserModel>req.user; // TODO: in feature, add operation user in category table
     const image_name = file?.filename;
     // console.log('headers =>', headers);
     console.log('upload image file =>', file);

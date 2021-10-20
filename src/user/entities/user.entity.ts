@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import UserType from "../../helper/constant/user-type.constant";
+import { UserType } from "src/user-type/entities/user-type.entity";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 const bcrypt = require('bcrypt');
 
 @Entity()
@@ -28,8 +28,8 @@ export class User {
     }
 
     @ApiProperty()
-    @Column({nullable: false})
-    type: UserType;
+    @ManyToOne(type => UserType, user_type => user_type.users)
+    user_type: UserType;
 
     @ApiProperty()
     @Column({nullable: true})
