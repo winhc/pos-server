@@ -11,6 +11,7 @@ export class CreateUserDto {
 
     @IsNotEmpty()
     @IsAlphanumeric()
+    @MinLength(6)
     @MaxLength(8)
     @ApiProperty({ required: true })
     account: string;
