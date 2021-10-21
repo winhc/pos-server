@@ -39,10 +39,10 @@ export class UserTypeController {
   async findAll(
     @Query('page_size') page_size?: number,
     @Query('page_index') page_index?: number,
-    @Query('role') role?: string,
+    @Query('user_role') user_role?: string,
     @Query('from_date') from_date?: string,
     @Query('to_date') to_date?: string): Promise<UserTypeDto> {
-    return await this.userTypeService.findAll(+page_size, +page_index, role, from_date, to_date);
+    return await this.userTypeService.findAll(+page_size, +page_index, user_role, from_date, to_date);
   }
 
   /**

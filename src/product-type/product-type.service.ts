@@ -111,7 +111,7 @@ export class ProductTypeService {
    */
   async findOne(id: number): Promise<ProductType> {
     try {
-      return await this.productTypeRepository.findOneOrFail(id);
+      return await this.productTypeRepository.findOneOrFail({ where: { id }, relations: ['products'] });
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Product type not found' });
@@ -162,6 +162,9 @@ export class ProductTypeService {
     const product_type = await this.findOne(id);
     if (!product_type) {
       throw new BadRequestException({ message: 'Product type not found' });
+    }
+    if (product_type.products.length > 0) {
+      throw new BadRequestException({ message: `Can't delete this product type. This product type have related products. If you want to delete this product type, first delete related products.` });
     }
     const deleteProductType = await this.productTypeRepository.remove(product_type);
     const data = toProductTypeModel(deleteProductType);

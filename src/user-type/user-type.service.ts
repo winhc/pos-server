@@ -52,16 +52,16 @@ export class UserTypeService {
    * find user type data
    * return UserTypeDto
    */
-  async findAll(page_size?: number, page_index?: number, role?: string, from_date?: string, to_date?: string): Promise<UserTypeDto> {
+  async findAll(page_size?: number, page_index?: number, user_role?: string, from_date?: string, to_date?: string): Promise<UserTypeDto> {
     try {
-      if (role && from_date && to_date && page_size && page_index) {
+      if (user_role && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
         const user_type = await this.userTypeRepository.createQueryBuilder('user_type')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
           .where('DATE(user_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-          .andWhere('user_type.role LIKE :u_role', { u_role: `%${role}%` })
+          .andWhere('user_type.user_role LIKE :u_role', { u_role: `%${user_role}%` })
           .skip(fromIndex)
           .take(takeLimit)
           .orderBy('user_type.id')
@@ -87,13 +87,13 @@ export class UserTypeService {
         return toUserTypeDto(data, count);
 
       }
-      else if (role && page_size && page_index) {
+      else if (user_role && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
         const user_type = await this.userTypeRepository.createQueryBuilder('user_type')
           .select('*')
           .addSelect('COUNT(*) OVER () AS count')
-          .where('user_type.role LIKE :u_role', { u_role: `%${role}%` })
+          .where('user_type.user_role LIKE :u_role', { u_role: `%${user_role}%` })
           .skip(fromIndex)
           .take(takeLimit)
           .orderBy('user_type.id')
@@ -125,7 +125,7 @@ export class UserTypeService {
    */
   async findOne(id: number): Promise<UserType> {
     try {
-      return await this.userTypeRepository.findOneOrFail(id);
+      return await this.userTypeRepository.findOneOrFail({where: {id}, relations: ['users']});
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'User type not found' });
@@ -176,6 +176,9 @@ export class UserTypeService {
     const user_type = await this.findOne(id);
     if (!user_type) {
       throw new BadRequestException({ message: 'User type not found' });
+    }
+    if(user_type.users.length > 0){
+      throw new BadRequestException({ message: `Can't delete this user type. This user type have related user account. If you want to delete this user type, first delete related user account.` });
     }
     const deleteUserType = await this.userTypeRepository.remove(user_type);
     const data = toUserTypeModel(deleteUserType);

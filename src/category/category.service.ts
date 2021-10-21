@@ -107,7 +107,7 @@ export class CategoryService {
         const count = parseInt(category[0]?.count);
         return toCategoryDto(data, count);
       }
-      else if(page_size && page_index) {
+      else if (page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
         const [category, count] = await this.categoryRepository.findAndCount({ skip: fromIndex, take: takeLimit });
@@ -132,7 +132,7 @@ export class CategoryService {
    */
   async findOne(id: number): Promise<Category> {
     try {
-      return await this.categoryRepository.findOneOrFail(id);
+      return await this.categoryRepository.findOneOrFail({ where: { id }, relations: ['products'] });
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Category not found' });
@@ -209,6 +209,9 @@ export class CategoryService {
     const category = await this.findOne(id);
     if (!category) {
       throw new BadRequestException({ message: 'Category not found' });
+    }
+    if (category.products.length > 0) {
+      throw new BadRequestException({ message: `Can't delete this category. This category have related products. If you want to delete this category, first delete related products.` });
     }
     const deleteCategory = await this.categoryRepository.remove(category);
     const data = toCategoryModel(deleteCategory);

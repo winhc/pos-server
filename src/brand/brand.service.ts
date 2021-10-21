@@ -112,7 +112,7 @@ export class BrandService {
    */
   async findOne(id: number): Promise<Brand> {
     try {
-      return await this.brandRepository.findOneOrFail(id);
+      return await this.brandRepository.findOneOrFail({ where: { id }, relations: ['products'] });
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Brand not found' });
@@ -163,6 +163,9 @@ export class BrandService {
     const brand = await this.findOne(id);
     if (!brand) {
       throw new BadRequestException({ message: 'Brand not found' });
+    }
+    if (brand.products.length > 0) {
+      throw new BadRequestException({ message: `Can't delete this brand. This brand have related products. If you want to delete this brand, first delete related products.` });
     }
     const deleteBrand = await this.brandRepository.remove(brand);
     const data = toBrandModel(deleteBrand);

@@ -163,7 +163,7 @@ export class UserService implements OnApplicationBootstrap {
    */
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
     const user = await this.findOne(id);
-    const userObj = toUserModel(user);
+    const userObj = toUserModel(user); // update without password column
     if (!user) {
       throw new BadRequestException({ message: 'User not found' });
     }
