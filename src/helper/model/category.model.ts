@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
+import { ProductModel } from "./product.model";
 
 export class CategoryModel {
 
@@ -29,4 +30,7 @@ export class CategoryModel {
     @ApiProperty()
     @IsNotEmpty()
     updated_at: Date;
+
+    @ApiProperty({type: ProductModel, isArray: true})
+    products: ProductModel[]
 }

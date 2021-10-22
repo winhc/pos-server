@@ -1,8 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
+import { Brand } from "src/brand/entities/brand.entity";
+import { Category } from "src/category/entities/category.entity";
+import { ProductType } from "src/product-type/entities/product-type.entity";
+import { Supplier } from "src/supplier/entities/supplier.entity";
 import { BrandModel } from "./brand.model";
 import { CategoryModel } from "./category.model";
 import { ProductTypeModel } from "./product-type.model";
+import { SupplierModel } from "./supplier.model";
 
 export class ProductModel {
     @ApiProperty()
@@ -22,15 +27,19 @@ export class ProductModel {
 
     @ApiProperty()
     @IsNotEmpty()
-    category: {};
+    category: Category;
 
     @ApiProperty()
     @IsNotEmpty()
-    product_type: ProductTypeModel;
+    product_type: ProductType;
 
     @ApiProperty()
     @IsNotEmpty()
-    brand: BrandModel;
+    brand: Brand;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    supplier: Supplier;
 
     @ApiProperty()
     @IsNotEmpty()

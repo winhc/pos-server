@@ -12,7 +12,7 @@ export class User {
 
     @ApiProperty()
     @Column({nullable: false})
-    name: string;
+    user_name: string;
 
     @ApiProperty()
     @Column({nullable: false, unique: true})

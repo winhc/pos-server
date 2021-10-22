@@ -6,7 +6,7 @@ export class UserLoginReplyDto {
     id: number;
 
     @IsNotEmpty()
-    name: string;
+    user_name: string;
 
     @IsNotEmpty()
     account: string;

@@ -4,7 +4,7 @@ import { CategoryModel } from "../../helper/model/category.model";
 
 export class CategoryDto {
 
-    @ApiProperty()
+    @ApiProperty({type: CategoryModel,isArray: true})
     @IsNotEmpty()
     data: CategoryModel[] | CategoryModel;
 

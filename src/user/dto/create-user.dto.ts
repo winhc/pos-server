@@ -7,7 +7,7 @@ export class CreateUserDto {
     @IsNotEmpty()
     @IsString()
     @ApiProperty({ required: true })
-    name: string;
+    user_name: string;
 
     @IsNotEmpty()
     @IsAlphanumeric()

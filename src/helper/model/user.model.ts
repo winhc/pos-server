@@ -10,7 +10,7 @@ export class UserModel {
 
     @ApiProperty()
     @IsNotEmpty()
-    name: string;
+    user_name: string;
 
     @ApiProperty()
     @IsNotEmpty()

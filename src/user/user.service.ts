@@ -28,7 +28,7 @@ export class UserService implements OnApplicationBootstrap {
     if (!inDb) {
       const userType = await this.userTypeService.initialCreateAdminRole();
       logger.log(`userType: ${userType.data['id']}`);
-      const adminUser: CreateUserDto = { name: 'posadmin', account: 'posadmin', password: 'posadmin', user_type: userType.data['id'], remarks: 'initial create admin' };
+      const adminUser: CreateUserDto = { user_name: 'posadmin', account: 'posadmin', password: 'posadmin', user_type: userType.data['id'], remarks: 'initial create admin' };
       this.create(adminUser);
       logger.debug('Initial admin user created');
     }

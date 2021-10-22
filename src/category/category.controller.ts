@@ -36,7 +36,7 @@ export class CategoryController {
     }
   )
   )
-  async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any, @Headers() headers): Promise<any> {
+  async create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file, @Req() req: any, @Headers() headers): Promise<CategoryDto> {
     const user = <UserModel>req.user; // TODO: in feature, add operation user in category table
     const image_name = file?.filename;
     // console.log('headers =>', headers);

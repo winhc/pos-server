@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
+import { Supplier } from "src/supplier/entities/supplier.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -33,6 +34,10 @@ export class Product {
     @ApiProperty()
     @ManyToOne(type => Brand, brand => brand.products)
     brand: Brand;
+
+    @ApiProperty()
+    @ManyToOne(type => Supplier, supplier => supplier.products)
+    supplier: Supplier;
 
     @ApiProperty()
     @Column({ nullable: false })

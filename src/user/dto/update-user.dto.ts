@@ -8,7 +8,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsString()
     @IsNotEmpty()
     @ApiProperty({ required: true })
-    name: string;
+    user_name: string;
 
     @IsNotEmpty()
     @IsAlphanumeric()

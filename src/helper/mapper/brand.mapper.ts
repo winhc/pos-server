@@ -3,8 +3,8 @@ import { Brand } from "src/brand/entities/brand.entity";
 import { BrandModel } from "src/helper/model/brand.model";
 
 export const toBrandModel = (data: Brand): BrandModel => {
-    const { id, brand_name, remarks, created_at, updated_at } = data;
-    const brandModel: BrandModel = { id, brand_name, remarks, created_at, updated_at };
+    const { id, brand_name, remarks, created_at, updated_at, products } = data;
+    const brandModel: BrandModel = { id, brand_name, remarks, created_at, updated_at, products };
     return brandModel;
 };
 

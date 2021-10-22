@@ -3,6 +3,7 @@ import { IsBoolean, IsNotEmpty } from "class-validator";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
+import { Supplier } from "src/supplier/entities/supplier.entity";
 
 export class CreateProductDto {
     @ApiProperty({required: true})
@@ -27,6 +28,10 @@ export class CreateProductDto {
     @ApiProperty({required: true})
     @IsNotEmpty()
     brand: Brand;
+
+    @ApiProperty({required: true})
+    @IsNotEmpty()
+    supplier: Supplier;
 
     @ApiProperty({required: true})
     @IsNotEmpty()

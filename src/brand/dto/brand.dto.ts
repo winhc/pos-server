@@ -3,7 +3,7 @@ import { IsNotEmpty } from "class-validator";
 import { BrandModel } from "../../helper/model/brand.model";
 
 export class BrandDto {
-    @ApiProperty()
+    @ApiProperty({type: BrandModel,isArray: true})
     @IsNotEmpty()
     data: BrandModel[] | BrandModel;
 
