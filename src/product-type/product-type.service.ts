@@ -141,7 +141,7 @@ export class ProductTypeService {
    */
   async findOne(id: number): Promise<ProductType> {
     try {
-      return await this.productTypeRepository.findOneOrFail({ where: { id }, relations: ['products'] });
+      return await this.productTypeRepository.findOneOrFail(id);
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Product type not found' });

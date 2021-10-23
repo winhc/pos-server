@@ -14,7 +14,7 @@ export class Customer {
     customer_name: string;
 
     @ApiProperty()
-    @Column({ nullable: true, unique: true })
+    @Column({ nullable: true, unique: false })
     phone: string;
 
     @ApiProperty()

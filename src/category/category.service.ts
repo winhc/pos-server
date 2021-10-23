@@ -153,7 +153,7 @@ export class CategoryService {
    */
   async findOne(id: number): Promise<Category> {
     try {
-      return await this.categoryRepository.findOneOrFail({ where: { id }, relations: ['products'] });
+      return await this.categoryRepository.findOneOrFail(id);
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Category not found' });

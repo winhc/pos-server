@@ -15,7 +15,7 @@ export class Supplier {
     supplier_name: string;
 
     @ApiProperty()
-    @Column({ nullable: true, unique: true })
+    @Column({ nullable: false, unique: true })
     phone: string;
 
     @ApiProperty()

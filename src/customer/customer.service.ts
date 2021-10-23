@@ -19,11 +19,7 @@ export class CustomerService {
    * return CustomerDto
    */
   async create(createCustomerDto: CreateCustomerDto): Promise<CustomerDto> {
-    const { phone } = createCustomerDto;
-    const inDb = await this.customerRepository.findOne({ where: { phone } });
-    if (inDb) {
-      throw new BadRequestException({ message: 'This phone number is already exit' });
-    }
+    createCustomerDto.phone = createCustomerDto.phone != '' ? '09' + createCustomerDto.phone : '';
     const customer: Customer = this.customerRepository.create(createCustomerDto);
     try {
       await this.customerRepository.save(customer);

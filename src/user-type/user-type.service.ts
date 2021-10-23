@@ -125,7 +125,7 @@ export class UserTypeService {
    */
   async findOne(id: number): Promise<UserType> {
     try {
-      return await this.userTypeRepository.findOneOrFail({where: {id}, relations: ['users']});
+      return await this.userTypeRepository.findOneOrFail(id);
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'User type not found' });

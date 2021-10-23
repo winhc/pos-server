@@ -142,7 +142,7 @@ export class BrandService {
    */
   async findOne(id: number): Promise<Brand> {
     try {
-      return await this.brandRepository.findOneOrFail({ where: { id }, relations: ['products'] });
+      return await this.brandRepository.findOneOrFail(id);
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Brand not found' });

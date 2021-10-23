@@ -98,6 +98,7 @@ export class ProductService {
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
           .leftJoinAndSelect('product.product_type', 'product_type')
+          .leftJoinAndSelect('product.supplier', 'supplier')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -117,6 +118,7 @@ export class ProductService {
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
           .leftJoinAndSelect('product.product_type', 'product_type')
+          .leftJoinAndSelect('product.supplier', 'supplier')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -130,7 +132,7 @@ export class ProductService {
         const takeLimit = page_size;
 
         const [product, count] = await this.productRepository.findAndCount({
-          relations: ['category', 'product_type', 'brand'],
+          relations: ['category', 'product_type', 'brand', 'supplier'],
           skip: fromIndex,
           take: takeLimit,
           where: { product_name: Like(`%${protuct_name}%`) }
@@ -145,7 +147,7 @@ export class ProductService {
         const takeLimit = page_size;
 
         const [product, count] = await this.productRepository.findAndCount({
-          relations: ['category', 'product_type', 'brand'],
+          relations: ['category', 'product_type', 'brand', 'supplier'],
           skip: fromIndex,
           take: takeLimit
         });
@@ -155,7 +157,9 @@ export class ProductService {
       }
       // Option 5
       else {
-        const [product, count] = await this.productRepository.findAndCount();
+        const [product, count] = await this.productRepository.findAndCount({
+          relations: ['category', 'product_type', 'brand', 'supplier']
+        });
         const data = product.map(value => toProductModel(value));
         return toProductDto(data, count);
       }

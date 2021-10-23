@@ -19,6 +19,7 @@ export class SupplierService {
    * return SupplierDto
    */
   async create(createSupplierDto: CreateSupplierDto): Promise<SupplierDto> {
+    createSupplierDto.phone = createSupplierDto.phone != '' ? '09' + createSupplierDto.phone : '';
     const { phone } = createSupplierDto;
     const inDb = await this.supplierRepository.findOne({ where: { phone } });
     if (inDb) {
@@ -142,7 +143,7 @@ export class SupplierService {
    */
   async findOne(id: number): Promise<Supplier> {
     try {
-      return await this.supplierRepository.findOneOrFail({ where: { id }, relations: ['products'] });
+      return await this.supplierRepository.findOneOrFail(id);
     } catch (error) {
       logger.warn(`findOne : ${error}`);
       throw new BadRequestException({ message: 'Supplier not found' });
@@ -166,7 +167,7 @@ export class SupplierService {
    * Update supplier row data that matches given id
    * return SupplierDto
    */
-  async update(id: number, updateSupplierDto: UpdateSupplierDto, image_name?: string): Promise<SupplierDto> {
+  async update(id: number, updateSupplierDto: UpdateSupplierDto): Promise<SupplierDto> {
     const supplier = await this.findOne(id);
     if (!supplier) {
       throw new BadRequestException({ message: 'Supplier not found' });
