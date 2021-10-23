@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { InjectRepository } from '@nestjs/typeorm';
 import { toProductTypeDto, toProductTypeModel } from 'src/helper/mapper/product-type.mapper';
 import { formattedDate } from 'src/helper/utils';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateProductTypeDto } from './dto/create-product-type.dto';
 import { ProductTypeDto } from './dto/product-type.dto';
 import { UpdateProductTypeDto } from './dto/update-product-type.dto';
@@ -39,68 +39,98 @@ export class ProductTypeService {
    * return ProductTypeDto
    */
   async findAll(page_size?: number, page_index?: number, product_type_name?: string, from_date?: string, to_date?: string): Promise<ProductTypeDto> {
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, product_type_name: ${product_type_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
-      if (product_type_name && from_date && to_date) {
+      // Option 1
+      if (product_type_name && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const productType = await this.productTypeRepository.createQueryBuilder('product_type')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
+
+        const [product_type, count] = await this.productTypeRepository.createQueryBuilder('product_type')
           .where('DATE(product_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .andWhere('product_type.product_type_name LIKE :pt_name', { pt_name: `%${product_type_name}%` })
           .skip(fromIndex)
           .take(takeLimit)
+          .leftJoinAndSelect('product_type.products', 'products')
           .orderBy('product_type.id')
-          .getRawMany();
-        const data = productType.map(value => toProductTypeModel(value));
-        const count = parseInt(productType[0]?.count);
+          .getManyAndCount()
+
+        logger.log(`product_type => ${product_type}, count => ${count}`);
+        const data = product_type.map(value => toProductTypeModel(value));
         return toProductTypeDto(data, count);
       }
+      // Option 2
       else if (from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const productType = await this.productTypeRepository.createQueryBuilder('product_type')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
+
+        const [product_type, count] = await this.productTypeRepository.createQueryBuilder('product_type')
           .where('DATE(product_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
+          .leftJoinAndSelect('product_type.products', 'products')
           .orderBy('product_type.id')
-          .getRawMany();
+          .getManyAndCount()
 
-        const data = productType.map(value => toProductTypeModel(value));
-        const count = parseInt(productType[0]?.count);
+        logger.log(`product_type => ${product_type}, count => ${count}`);
+        const data = product_type.map(value => toProductTypeModel(value));
         return toProductTypeDto(data, count);
-
       }
+      // Option 3
       else if (product_type_name && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const productType = await this.productTypeRepository.createQueryBuilder('product_type')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
-          .where('product_type.product_type_name LIKE :pt_name', { pt_name: `%${product_type_name}%` })
-          .skip(fromIndex)
-          .take(takeLimit)
-          .orderBy('product_type.id')
-          .getRawMany();
-        const data = productType.map(value => toProductTypeModel(value));
-        const count = parseInt(productType[0]?.count);
-        return toProductTypeDto(data, count);
+
+        const [product_type, count] = await this.productTypeRepository.findAndCount({
+          relations: ['products'],
+          skip: fromIndex,
+          take: takeLimit,
+          where: { product_type_name: Like(`%${product_type_name}%`) }
+        });
+        logger.log(`product_type => ${product_type}, count: ${count}`);
+        const data = product_type.map(value => toProductTypeModel(value));
+        return toProductTypeDto(data, count)
       }
+      // Option 4
       else if (page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const [productType, count] = await this.productTypeRepository.findAndCount({ skip: fromIndex, take: takeLimit });
-        const data = productType.map(value => toProductTypeModel(value));
-        return toProductTypeDto(data, count);
-      } else {
-        const [productType, count] = await this.productTypeRepository.findAndCount();
-        const data = productType.map(value => toProductTypeModel(value));
+
+        const [product_type, count] = await this.productTypeRepository.findAndCount({
+          relations: ['products'],
+          skip: fromIndex,
+          take: takeLimit
+        });
+        logger.log(`product_type => ${product_type}, count: ${count}`);
+        const data = product_type.map(value => toProductTypeModel(value));
+        return toProductTypeDto(data, count)
+      }
+      // Option 5
+      else {
+        const [product_type, count] = await this.productTypeRepository.findAndCount({
+          relations: ['products'],
+        });
+        const data = product_type.map(value => toProductTypeModel(value));
         return toProductTypeDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
+      throw new BadRequestException({ message: 'Product not found' });
+    }
+  }
+
+  /**
+   * find product type data
+   * return ProductTypeDto
+   * not select relation
+   */
+   async find(): Promise<ProductTypeDto> {
+    try {
+      const [supplier, count] = await this.productTypeRepository.findAndCount();
+      const data = supplier.map(value => toProductTypeModel(value));
+      return toProductTypeDto(data, count);
+    } catch (error) {
+      logger.error(`find: ${error}`);
       throw new BadRequestException({ message: 'Product type not found' });
     }
   }

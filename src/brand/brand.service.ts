@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { InjectRepository } from '@nestjs/typeorm';
 import { toBrandDto, toBrandModel } from 'src/helper/mapper/brand.mapper';
 import { formattedDate } from 'src/helper/utils';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { BrandDto } from './dto/brand.dto';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
@@ -40,68 +40,98 @@ export class BrandService {
    * return BrandDto
    */
   async findAll(page_size?: number, page_index?: number, brand_name?: string, from_date?: string, to_date?: string): Promise<BrandDto> {
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, brand_name: ${brand_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
+      // Option 1
       if (brand_name && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const brand = await this.brandRepository.createQueryBuilder('brand')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
+
+        const [brand, count] = await this.brandRepository.createQueryBuilder('brand')
           .where('DATE(brand.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .andWhere('brand.brand_name LIKE :b_name', { b_name: `%${brand_name}%` })
           .skip(fromIndex)
           .take(takeLimit)
+          .leftJoinAndSelect('brand.products', 'products')
           .orderBy('brand.id')
-          .getRawMany();
+          .getManyAndCount()
+
+        logger.log(`brand => ${brand}, count => ${count}`);
         const data = brand.map(value => toBrandModel(value));
-        const count = parseInt(brand[0]?.count);
         return toBrandDto(data, count);
       }
+      // Option 2
       else if (from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const brand = await this.brandRepository.createQueryBuilder('brand')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
+
+        const [brand, count] = await this.brandRepository.createQueryBuilder('brand')
           .where('DATE(brand.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
+          .leftJoinAndSelect('brand.products', 'products')
           .orderBy('brand.id')
-          .getRawMany();
+          .getManyAndCount()
 
+        logger.log(`brand => ${brand}, count => ${count}`);
         const data = brand.map(value => toBrandModel(value));
-        const count = parseInt(brand[0]?.count);
         return toBrandDto(data, count);
-
       }
+      // Option 3
       else if (brand_name && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const brand = await this.brandRepository.createQueryBuilder('brand')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
-          .where('brand.brand_name LIKE :b_name', { b_name: `%${brand_name}%` })
-          .skip(fromIndex)
-          .take(takeLimit)
-          .orderBy('brand.id')
-          .getRawMany();
+
+        const [brand, count] = await this.brandRepository.findAndCount({
+          relations: ['products'],
+          skip: fromIndex,
+          take: takeLimit,
+          where: { brand_name: Like(`%${brand_name}%`) }
+        });
+        logger.log(`brand => ${brand}, count: ${count}`);
         const data = brand.map(value => toBrandModel(value));
-        const count = parseInt(brand[0]?.count);
-        return toBrandDto(data, count);
+        return toBrandDto(data, count)
       }
+      // Option 4
       else if (page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const [brand, count] = await this.brandRepository.findAndCount({ skip: fromIndex, take: takeLimit });
+
+        const [brand, count] = await this.brandRepository.findAndCount({
+          relations: ['products'],
+          skip: fromIndex,
+          take: takeLimit
+        });
+        logger.log(`brand => ${brand}, count: ${count}`);
         const data = brand.map(value => toBrandModel(value));
-        return toBrandDto(data, count);
-      } else {
-        const [brand, count] = await this.brandRepository.findAndCount();
+        return toBrandDto(data, count)
+      }
+      // Option 5
+      else {
+        const [brand, count] = await this.brandRepository.findAndCount({
+          relations: ['products'],
+        });
         const data = brand.map(value => toBrandModel(value));
         return toBrandDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
+      throw new BadRequestException({ message: 'Product not found' });
+    }
+  }
+
+  /**
+   * find brand data
+   * return BrandDto
+   * not select relation
+   */
+  async find(): Promise<BrandDto> {
+    try {
+      const [supplier, count] = await this.brandRepository.findAndCount();
+      const data = supplier.map(value => toBrandModel(value));
+      return toBrandDto(data, count);
+    } catch (error) {
+      logger.error(`find: ${error}`);
       throw new BadRequestException({ message: 'Brand not found' });
     }
   }

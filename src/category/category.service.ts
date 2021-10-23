@@ -5,7 +5,7 @@ import { UserModel } from 'src/helper/model/user.model';
 import { formattedDate } from 'src/helper/utils';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -53,75 +53,96 @@ export class CategoryService {
   async findAll(page_size?: number, page_index?: number, category_name?: string, from_date?: string, to_date?: string): Promise<CategoryDto> {
     logger.log(`page_size: ${page_size}, page_index: ${page_index}, category_name: ${category_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
+      // Option 1
       if (category_name && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const category = await this.categoryRepository.createQueryBuilder('category')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
+
+        const [category, count] = await this.categoryRepository.createQueryBuilder('category')
           .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .andWhere('category.category_name LIKE :c_name', { c_name: `%${category_name}%` })
           .skip(fromIndex)
           .take(takeLimit)
+          .leftJoinAndSelect('category.products', 'products')
           .orderBy('category.id')
-          .getRawMany();
-        // logger.log(`category => ${category}`);
+          .getManyAndCount()
+
+        logger.log(`category => ${category}, count => ${count}`);
         const data = category.map(value => toCategoryModel(value));
-        // logger.log(`data => ${data}, count => ${category[0]?.count}`);
-        const count = parseInt(category[0]?.count);
         return toCategoryDto(data, count);
       }
+      // Option 2
       else if (from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const category = await this.categoryRepository.createQueryBuilder('category')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
+
+        const [category, count] = await this.categoryRepository.createQueryBuilder('category')
           .where('DATE(category.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
+          .leftJoinAndSelect('category.products', 'products')
           .orderBy('category.id')
-          .getRawMany();
+          .getManyAndCount()
 
-        // logger.log(`category => ${category}`);
+        logger.log(`category => ${category}, count => ${count}`);
         const data = category.map(value => toCategoryModel(value));
-        // logger.log(`data => ${data}, count => ${category[0]?.count}`);
-        const count = parseInt(category[0]?.count);
         return toCategoryDto(data, count);
-
       }
+      // Option 3
       else if (category_name && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const category = await this.categoryRepository.createQueryBuilder('category')
-          .select('*')
-          .addSelect('COUNT(*) OVER () AS count')
-          .where('category.category_name LIKE :c_name', { c_name: `%${category_name}%` })
-          .skip(fromIndex)
-          .take(takeLimit)
-          .orderBy('category.id')
-          .getRawMany();
-        // logger.log(`category => ${category}`);
+
+        const [category, count] = await this.categoryRepository.findAndCount({
+          relations: ['products'],
+          skip: fromIndex,
+          take: takeLimit,
+          where: { category_name: Like(`%${category_name}%`) }
+        });
+        logger.log(`category => ${category}, count: ${count}`);
         const data = category.map(value => toCategoryModel(value));
-        // logger.log(`data => ${data}, count => ${category[0]?.count}`);
-        const count = parseInt(category[0]?.count);
-        return toCategoryDto(data, count);
+        return toCategoryDto(data, count)
       }
+      // Option 4
       else if (page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
-        const [category, count] = await this.categoryRepository.findAndCount({ skip: fromIndex, take: takeLimit });
-        // logger.log(`data => ${category}`)
-        // logger.log(`total_count => ${count}`)
+
+        const [category, count] = await this.categoryRepository.findAndCount({
+          relations: ['products'],
+          skip: fromIndex,
+          take: takeLimit
+        });
+        logger.log(`category => ${category}, count: ${count}`);
         const data = category.map(value => toCategoryModel(value));
-        return toCategoryDto(data, count);
-      } else {
-        const [category, count] = await this.categoryRepository.findAndCount();
+        return toCategoryDto(data, count)
+      }
+      // Option 5
+      else {
+        const [category, count] = await this.categoryRepository.findAndCount({
+          relations: ['products'],
+        });
         const data = category.map(value => toCategoryModel(value));
         return toCategoryDto(data, count);
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
+      throw new BadRequestException({ message: 'Category not found' });
+    }
+  }
+
+  /**
+   * find category data
+   * return CategoryDto
+   * not select relation
+   */
+  async find(): Promise<CategoryDto> {
+    try {
+      const [supplier, count] = await this.categoryRepository.findAndCount();
+      const data = supplier.map(value => toCategoryModel(value));
+      return toCategoryDto(data, count);
+    } catch (error) {
+      logger.error(`find: ${error}`);
       throw new BadRequestException({ message: 'Category not found' });
     }
   }

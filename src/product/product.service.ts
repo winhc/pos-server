@@ -11,6 +11,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { formattedDate } from 'src/helper/utils';
 import { CategoryService } from 'src/category/category.service';
+import { SupplierService } from 'src/supplier/supplier.service';
 const logger = new Logger('ProductService');
 
 @Injectable()
@@ -19,7 +20,9 @@ export class ProductService {
     @InjectRepository(Product) private readonly productRepository: Repository<Product>,
     private readonly brandService: BrandService,
     private readonly categoryService: CategoryService,
-    private readonly productTypeService: ProductTypeService) { }
+    private readonly productTypeService: ProductTypeService,
+    private readonly supplierService: SupplierService,
+    ) { }
   /**
    * create new product data
    * return ProductDto
@@ -163,13 +166,15 @@ export class ProductService {
   }
 
   async findProductOption(): Promise<ProductOptionDto> {
-    const brandData = await this.brandService.findAll();
-    const categoryData = await this.categoryService.findAll();
-    const productTypeData = await this.productTypeService.findAll();
+    const brandData = await this.brandService.find();
+    const categoryData = await this.categoryService.find();
+    const productTypeData = await this.productTypeService.find();
+    const supplierDto = await this.supplierService.find();
     const data: ProductOptionDto = {
       brand: brandData,
       category: categoryData,
-      product_type: productTypeData
+      product_type: productTypeData,
+      supplier: supplierDto
     };
     return data;
   }

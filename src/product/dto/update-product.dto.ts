@@ -4,6 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 import { Brand } from 'src/brand/entities/brand.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { ProductType } from 'src/product-type/entities/product-type.entity';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { CreateProductDto } from './create-product.dto';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
@@ -26,6 +27,10 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     @ApiProperty({ required: true })
     @IsNotEmpty()
     brand: Brand;
+
+    @ApiProperty({ required: true })
+    @IsNotEmpty()
+    supplier: Supplier;
 
     @ApiProperty({ required: true })
     @IsNotEmpty()

@@ -121,6 +121,22 @@ export class SupplierService {
   }
 
   /**
+   * find supplier data
+   * return SupplierDto
+   * not select relation
+   */
+  async find(): Promise<SupplierDto> {
+    try {
+      const [supplier, count] = await this.supplierRepository.findAndCount();
+      const data = supplier.map(value => toSupplierModel(value));
+      return toSupplierDto(data, count);
+    } catch (error) {
+      logger.error(`find: ${error}`);
+      throw new BadRequestException({ message: 'Supplier not found' });
+    }
+  }
+
+  /**
    * find supplier data by id
    * return Supplier Entity
    */

@@ -3,6 +3,7 @@ import { IsNotEmpty } from "class-validator";
 import { BrandDto } from "src/brand/dto/brand.dto";
 import { CategoryDto } from "src/category/dto/category.dto";
 import { ProductTypeDto } from "src/product-type/dto/product-type.dto";
+import { SupplierDto } from "src/supplier/dto/supplier.dto";
 
 export class ProductOptionDto {
     @ApiProperty()
@@ -16,4 +17,8 @@ export class ProductOptionDto {
     @ApiProperty()
     @IsNotEmpty()
     product_type: ProductTypeDto
+
+    @ApiProperty()
+    @IsNotEmpty()
+    supplier: SupplierDto
 }

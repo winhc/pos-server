@@ -7,13 +7,16 @@ import { AuthModule } from 'src/auth/auth.module';
 import { BrandModule } from 'src/brand/brand.module';
 import { CategoryModule } from 'src/category/category.module';
 import { ProductTypeModule } from 'src/product-type/product-type.module';
+import { SupplierModule } from 'src/supplier/supplier.module';
 
 @Module({
   imports: [AuthModule,
     TypeOrmModule.forFeature([Product]),
     BrandModule,
     CategoryModule,
-    ProductTypeModule],
+    ProductTypeModule,
+    SupplierModule
+  ],
   controllers: [ProductController],
   providers: [ProductService],
   exports: [ProductService]
