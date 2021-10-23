@@ -173,6 +173,7 @@ export class SupplierService {
       throw new BadRequestException({ message: 'Supplier not found' });
     }
     try {
+      updateSupplierDto.phone = updateSupplierDto.phone != '' ? '09' + updateSupplierDto.phone : '';
       updateSupplierDto.updated_at = new Date();
       const supplierToUpdate = Object.assign(supplier, updateSupplierDto);
       await this.supplierRepository.update(id, supplierToUpdate);
@@ -189,7 +190,7 @@ export class SupplierService {
    * Delete entre supplier row data that matches given id.
    */
   async remove(id: number): Promise<SupplierDto> {
-    const supplier = await this.findOne(id);
+    const supplier = await this.supplierRepository.findOne({ where: { id }, relations: ['products'] });
     if (!supplier) {
       throw new BadRequestException({ message: 'Supplier not found' });
     }

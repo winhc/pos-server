@@ -227,7 +227,7 @@ export class CategoryService {
    * Delete entre category row data that matches given id.
    */
   async remove(id: number): Promise<CategoryDto> {
-    const category = await this.findOne(id);
+    const category = await this.categoryRepository.findOne({ where: { id }, relations: ['products'] });
     if (!category) {
       throw new BadRequestException({ message: 'Category not found' });
     }

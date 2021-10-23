@@ -124,7 +124,7 @@ export class ProductTypeService {
    * return ProductTypeDto
    * not select relation
    */
-   async find(): Promise<ProductTypeDto> {
+  async find(): Promise<ProductTypeDto> {
     try {
       const [supplier, count] = await this.productTypeRepository.findAndCount();
       const data = supplier.map(value => toProductTypeModel(value));
@@ -189,7 +189,7 @@ export class ProductTypeService {
    * return ProductTypeDto
    */
   async remove(id: number): Promise<ProductTypeDto> {
-    const product_type = await this.findOne(id);
+    const product_type = await this.productTypeRepository.findOne({ where: { id }, relations: ['products'] });
     if (!product_type) {
       throw new BadRequestException({ message: 'Product type not found' });
     }

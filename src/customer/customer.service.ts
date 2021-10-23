@@ -147,6 +147,7 @@ export class CustomerService {
       throw new BadRequestException({ message: 'Customer not found' });
     }
     try {
+      updateCustomerDto.phone = updateCustomerDto.phone != '' ? '09' + updateCustomerDto.phone : '';
       updateCustomerDto.updated_at = new Date();
       // logger.log(`image => ${updateCustomerDto.image} type ${typeof image_name}`)
       const customerToUpdate = Object.assign(customer, updateCustomerDto);

@@ -190,7 +190,7 @@ export class BrandService {
    * return BrandDto
    */
   async remove(id: number): Promise<BrandDto> {
-    const brand = await this.findOne(id);
+    const brand = await this.brandRepository.findOne({ where: { id }, relations: ['products'] });
     if (!brand) {
       throw new BadRequestException({ message: 'Brand not found' });
     }
