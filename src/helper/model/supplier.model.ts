@@ -28,6 +28,6 @@ export class SupplierModel {
     @ApiProperty()
     updated_at: Date;
 
-    @ApiProperty({type: ProductModel, isArray: true})
-    products: ProductModel[]
+    // @ApiProperty({type: ProductModel, isArray: true})
+    // products: ProductModel[]
 }

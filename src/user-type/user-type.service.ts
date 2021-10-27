@@ -173,7 +173,7 @@ export class UserTypeService {
    * return UserTypeDto
    */
   async remove(id: number): Promise<UserTypeDto> {
-    const user_type = await this.findOne(id);
+    const user_type = await this.userTypeRepository.findOne({where: {id}, relations: ['users']});
     if (!user_type) {
       throw new BadRequestException({ message: 'User type not found' });
     }

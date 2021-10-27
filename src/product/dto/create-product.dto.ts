@@ -1,17 +1,26 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsNotEmpty } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
+import { Store } from "src/store/entities/store.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
 
+// pre-define create product data
 export class CreateProductDto {
     @ApiProperty({required: true})
     @IsNotEmpty()
+    @IsString()
     product_code: string;
 
     @ApiProperty({required: true})
     @IsNotEmpty()
+    @IsString()
+    bar_code: string;
+
+    @ApiProperty({required: true})
+    @IsNotEmpty()
+    @IsString()
     product_name: string;
 
     @ApiProperty({required: false})
@@ -23,30 +32,15 @@ export class CreateProductDto {
 
     @ApiProperty({required: true})
     @IsNotEmpty()
-    product_type: ProductType;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
     brand: Brand;
 
     @ApiProperty({required: true})
     @IsNotEmpty()
-    supplier: Supplier;
+    product_type: ProductType;
 
     @ApiProperty({required: true})
     @IsNotEmpty()
-    buy_unit_price: number;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    sell_unit_price: number;
-
-    @ApiProperty({required: false})
-    expiry_at?: Date;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    tax: number;
+    supplier: Supplier ;
 
     @ApiProperty({required: true})
     @IsNotEmpty()
@@ -54,12 +48,15 @@ export class CreateProductDto {
 
     @ApiProperty({required: true})
     @IsNotEmpty()
-    alert_quantity: number;
+    cost: number;
 
     @ApiProperty({required: true})
     @IsNotEmpty()
-    for_sale: boolean;
+    alert_quantity: number;
 
+    @ApiProperty({required: false})
+    expiry_at?: Date;
+    
     @ApiProperty({required: false})
     remarks?: string;
     

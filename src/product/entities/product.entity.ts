@@ -1,9 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
+import { Order } from "src/order/entities/order.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
+import { StoreProduct } from "src/store/entities/store-product.entity";
+import { Store } from "src/store/entities/store.entity";
+import { SupplierProduct } from "src/supplier/entities/supplier-product.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product {
@@ -16,6 +20,10 @@ export class Product {
     product_code: string;
 
     @ApiProperty()
+    @Column({ nullable: false, unique: true, length: 13})
+    bar_code: string;
+
+    @ApiProperty()
     @Column({ nullable: false, unique: true })
     product_name: string;
 
@@ -24,48 +32,16 @@ export class Product {
     image: string;
 
     @ApiProperty()
-    @ManyToOne(type => Category, category => category.products)
-    category: Category;
-
-    @ApiProperty()
-    @ManyToOne(type => ProductType, product_type => product_type.products)
-    product_type: ProductType;
-
-    @ApiProperty()
-    @ManyToOne(type => Brand, brand => brand.products)
-    brand: Brand;
-
-    @ApiProperty()
-    @ManyToOne(type => Supplier, supplier => supplier.products)
-    supplier: Supplier;
-
-    @ApiProperty()
-    @Column({ nullable: false })
-    buy_unit_price: number;
-
-    @ApiProperty()
-    @Column({ nullable: false })
-    sell_unit_price: number;
-
-    @ApiProperty()
-    @Column({ type: 'timestamp', nullable: true })
-    expiry_at: Date;
+    @Column({ nullable: true })
+    cost: number;
 
     @ApiProperty()
     @Column({ nullable: true })
-    tax: number;
-
-    @ApiProperty()
-    @Column({ nullable: false })
     quantity: number;
 
     @ApiProperty()
-    @Column({ nullable: false })
-    alert_quantity: number;
-
-    @ApiProperty()
     @Column({ nullable: true })
-    for_sale: boolean;
+    alert_quantity: number;
 
     @ApiProperty()
     @Column({ nullable: true })
@@ -78,4 +54,20 @@ export class Product {
     @ApiProperty()
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: true })
     updated_at: Date;
+
+    @ApiProperty()
+    @ManyToOne(type => Category, category => category.products)
+    category: Category;
+
+    @ApiProperty()
+    @ManyToOne(type => Brand, brand => brand.products)
+    brand: Brand;
+
+    @ApiProperty()
+    @OneToMany(type => SupplierProduct, supplierProduct => supplierProduct.product)
+    supplier_product: SupplierProduct[];
+
+    @ApiProperty()
+    @OneToMany(type => StoreProduct, storeProduct => storeProduct.products)
+    store_product: StoreProduct[];
 }

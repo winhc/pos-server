@@ -3,16 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { toSupplierDto, toSupplierModel } from 'src/helper/mapper/supplier.mapper';
 import { formattedDate } from 'src/helper/utils';
 import { Like, Repository } from 'typeorm';
+import { CreateSupplierProductDto } from './dto/create-supplier-product.dto';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { SupplierDto } from './dto/supplier.dto';
+import { UpdateSupplierProductDto } from './dto/update-supplier-product.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
+import { SupplierProduct } from './entities/supplier-product.entity';
 import { Supplier } from './entities/supplier.entity';
 const logger = new Logger('SupplierService')
 
 @Injectable()
 export class SupplierService {
   constructor(
-    @InjectRepository(Supplier) private readonly supplierRepository: Repository<Supplier>) { }
+    @InjectRepository(Supplier) private readonly supplierRepository: Repository<Supplier>,
+    @InjectRepository(SupplierProduct) private readonly supplierProductRepository: Repository<SupplierProduct>) { }
 
   /**
    * create new supplier data
@@ -37,6 +41,41 @@ export class SupplierService {
   }
 
   /**
+   * create new supplier product data
+   * return SupplierProduct entity
+   */
+  async createSupplierProduct(createSupplierProductDto: CreateSupplierProductDto): Promise<SupplierProduct> {
+    const supplierProduct: SupplierProduct = this.supplierProductRepository.create(createSupplierProductDto);
+    try {
+      await this.supplierProductRepository.save(supplierProduct);
+    } catch (error) {
+      logger.error(`create: ${error}`);
+      throw new InternalServerErrorException({ message: 'Create supplier product fail' });
+    }
+    return supplierProduct;
+  }
+
+  /**
+   * update supplier product data
+   * return SupplierProduct entity
+   */
+  async updateSupplierProduct(id: number, updateSupplierProductDto: UpdateSupplierProductDto): Promise<SupplierProduct> {
+    const supplierProduct = await this.supplierProductRepository.findOne(id);
+    if (!supplierProduct) {
+      throw new BadRequestException({ message: `Supplier's product not found` });
+    }
+    try {
+      const supplierProductToUpdate = Object.assign(supplierProduct, updateSupplierProductDto);
+      await this.supplierProductRepository.update(id, supplierProductToUpdate);
+    } catch (error) {
+      logger.error(`update : ${error}`);
+      throw new InternalServerErrorException({ message: 'Update fail' })
+    }
+    const updateSupplierProduct = await this.supplierProductRepository.findOne(supplierProduct.id)
+    return updateSupplierProduct;
+  }
+
+  /**
    * find supplier data
    * return SupplierDto
    */
@@ -53,7 +92,7 @@ export class SupplierService {
           .andWhere('supplier.supplier_name LIKE :s_name', { s_name: `%${supplier_name}%` })
           .skip(fromIndex)
           .take(takeLimit)
-          .leftJoinAndSelect('supplier.products', 'products')
+          // .leftJoinAndSelect('supplier.products', 'products')
           .orderBy('supplier.id')
           .getManyAndCount()
 
@@ -70,7 +109,7 @@ export class SupplierService {
           .where('DATE(supplier.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
-          .leftJoinAndSelect('supplier.products', 'products')
+          // .leftJoinAndSelect('supplier.products', 'products')
           .orderBy('supplier.id')
           .getManyAndCount()
 
@@ -84,7 +123,7 @@ export class SupplierService {
         const takeLimit = page_size;
 
         const [supplier, count] = await this.supplierRepository.findAndCount({
-          relations: ['products'],
+          // relations: ['products'],
           skip: fromIndex,
           take: takeLimit,
           where: { supplier_name: Like(`%${supplier_name}%`) }
@@ -99,7 +138,7 @@ export class SupplierService {
         const takeLimit = page_size;
 
         const [supplier, count] = await this.supplierRepository.findAndCount({
-          relations: ['products'],
+          // relations: ['products'],
           skip: fromIndex,
           take: takeLimit
         });
@@ -110,7 +149,7 @@ export class SupplierService {
       // Option 5
       else {
         const [supplier, count] = await this.supplierRepository.findAndCount({
-          relations: ['products'],
+          // relations: ['products'],
         });
         const data = supplier.map(value => toSupplierModel(value));
         return toSupplierDto(data, count);
@@ -190,13 +229,13 @@ export class SupplierService {
    * Delete entre supplier row data that matches given id.
    */
   async remove(id: number): Promise<SupplierDto> {
-    const supplier = await this.supplierRepository.findOne({ where: { id }, relations: ['products'] });
+    const supplier = await this.supplierRepository.findOne(id);
     if (!supplier) {
       throw new BadRequestException({ message: 'Supplier not found' });
     }
-    if (supplier.products.length > 0) {
-      throw new BadRequestException({ message: `Can't delete this supplier. This supplier have related products. If you want to delete this supplier, first delete related products.` });
-    }
+    // if (supplier.products.length > 0) {
+    //   throw new BadRequestException({ message: `Can't delete this supplier. This supplier have related products. If you want to delete this supplier, first delete related products.` });
+    // }
     const deleteSupplier = await this.supplierRepository.remove(supplier);
     const data = toSupplierModel(deleteSupplier);
     return toSupplierDto(data);

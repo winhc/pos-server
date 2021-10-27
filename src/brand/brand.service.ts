@@ -116,7 +116,7 @@ export class BrandService {
       }
     } catch (error) {
       logger.error(`findAll: ${error}`);
-      throw new BadRequestException({ message: 'Product not found' });
+      throw new BadRequestException({ message: 'Brand not found' });
     }
   }
 

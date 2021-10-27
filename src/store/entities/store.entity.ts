@@ -1,25 +1,20 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Order } from "src/order/entities/order.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-const bcrypt = require('bcrypt');
+import { Product } from "src/product/entities/product.entity";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { StoreProduct } from "./store-product.entity";
 
 @Entity()
-export class Customer {
-
+export class Store {
     @ApiProperty()
     @PrimaryGeneratedColumn()
     id: number;
 
     @ApiProperty()
+    @Column({ nullable: false, unique: true })
+    store_name: string;
+
+    @ApiProperty()
     @Column({ nullable: false })
-    customer_name: string;
-
-    @ApiProperty()
-    @Column({ nullable: true, unique: false })
-    phone: string;
-
-    @ApiProperty()
-    @Column({ nullable: true })
     address: string;
 
     @ApiProperty()
@@ -35,6 +30,6 @@ export class Customer {
     updated_at: Date;
 
     @ApiProperty()
-    @OneToMany(type => Order, order => order.customer)
-    orders: Order[]
+    @OneToMany(type => StoreProduct, storeProduct => storeProduct.stores)
+    store_products: StoreProduct[];
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, UseInterceptors, UploadedFile, Put } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -9,6 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ProductOptionDto } from './dto/product-option.dto';
+import { ImportProductDto } from './dto/import-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -96,7 +97,7 @@ export class ProductController {
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
-  @Patch(':id')
+  @Patch(':id/:supplier_product_id')
   @UseInterceptors(FileInterceptor('image',
     {
       storage: diskStorage({
@@ -109,11 +110,23 @@ export class ProductController {
     }
   )
   )
-  async update(@Param('id', ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto, @UploadedFile() file): Promise<ProductDto> {
+  async update(@Param('id', ParseIntPipe) id: number, @Param('supplier_product_id', ParseIntPipe) supplier_product_id: number, @Body() updateProductDto: UpdateProductDto, @UploadedFile() file): Promise<ProductDto> {
     const image_name = file?.filename || updateProductDto.image;
     console.log('upload image file =>', file);
     console.log('updateProductDto =>', updateProductDto);
-    return await this.productService.update(id, updateProductDto,image_name);
+    return await this.productService.update(id, supplier_product_id, updateProductDto, image_name);
+  }
+
+  /**
+   * import product by id
+   */
+  @ApiOkResponse({ type: ProductDto, description: 'Response updated product' })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
+  @Put(':id')
+  async importProduct(@Param('id', ParseIntPipe) id: number, @Body() importProductDto: ImportProductDto): Promise<ProductDto> {
+    return await this.productService.importProduct(id, importProductDto);
   }
 
   /**

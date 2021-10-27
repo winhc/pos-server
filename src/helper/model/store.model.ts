@@ -1,19 +1,22 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
-import { ProductModel } from "./product.model";
 
-export class ProductTypeModel {
+export class StoreModel {
     @ApiProperty()
     @IsNotEmpty()
     id: number;
 
     @ApiProperty()
     @IsNotEmpty()
-    unit: string;
+    store_name: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    address: string;
 
     @ApiProperty()
     remarks: string;
-    
+
     @ApiProperty()
     @IsNotEmpty()
     created_at: Date;

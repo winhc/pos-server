@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Product } from "src/product/entities/product.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-const bcrypt = require('bcrypt');
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { SupplierProduct } from "./supplier-product.entity";
 
 @Entity()
 export class Supplier {
@@ -34,6 +34,6 @@ export class Supplier {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: true })
     updated_at: Date;
 
-    @OneToMany(type => Product, product => product.supplier)
-    products: Product[];
+    @OneToMany(type => SupplierProduct, supplierProduct => supplierProduct.supplier)
+    supplier_products: SupplierProduct[];
 }

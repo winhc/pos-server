@@ -26,12 +26,12 @@ export class ProductTypeController {
 
   /**
    * find all product type OR
-   * search product type by product_type_name
+   * search product type by unit
    */
-  @ApiOkResponse({ type: ProductTypeDto, isArray: false, description: 'Response all product type or search product type by product_type_name' })
+  @ApiOkResponse({ type: ProductTypeDto, isArray: false, description: 'Response all product type or search product type by unit' })
   @ApiQuery({ name: 'page_size', required: false })
   @ApiQuery({ name: 'page_index', required: false })
-  @ApiQuery({ name: 'product_type_name', required: false })
+  @ApiQuery({ name: 'unit', required: false })
   @ApiQuery({ name: 'from_date', required: false })
   @ApiQuery({ name: 'to_date', required: false })
   @ApiNotFoundResponse()
@@ -41,10 +41,10 @@ export class ProductTypeController {
   async findAll(
     @Query('page_size') page_size?: number,
     @Query('page_index') page_index?: number,
-    @Query('product_type_name') product_type_name?: string,
+    @Query('unit') unit?: string,
     @Query('from_date') from_date?: string,
     @Query('to_date') to_date?: string): Promise<ProductTypeDto> {
-    return await this.productTypeService.findAll(+page_size, +page_index, product_type_name, from_date, to_date);
+    return await this.productTypeService.findAll(+page_size, +page_index, unit, from_date, to_date);
   }
 
   /**

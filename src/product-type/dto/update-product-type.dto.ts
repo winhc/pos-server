@@ -7,7 +7,7 @@ export class UpdateProductTypeDto extends PartialType(CreateProductTypeDto) {
     @ApiProperty({ required: true })
     @IsString()
     @IsNotEmpty()
-    product_type_name: string;
+    unit: string;
 
     @ApiProperty({ required: true })
     @IsString()

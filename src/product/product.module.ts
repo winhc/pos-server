@@ -8,10 +8,12 @@ import { BrandModule } from 'src/brand/brand.module';
 import { CategoryModule } from 'src/category/category.module';
 import { ProductTypeModule } from 'src/product-type/product-type.module';
 import { SupplierModule } from 'src/supplier/supplier.module';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
 
 @Module({
   imports: [AuthModule,
-    TypeOrmModule.forFeature([Product]),
+    TypeOrmModule.forFeature([Product, Supplier, SupplierProduct]),
     BrandModule,
     CategoryModule,
     ProductTypeModule,

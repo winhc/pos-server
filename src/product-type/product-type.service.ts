@@ -17,9 +17,9 @@ export class ProductTypeService {
    * return ProductTypeDto
    */
   async create(createProductTypeDto: CreateProductTypeDto): Promise<ProductTypeDto> {
-    const { product_type_name } = createProductTypeDto;
+    const { unit } = createProductTypeDto;
 
-    const productTypeInDb = await this.productTypeRepository.findOne({ where: { product_type_name } });
+    const productTypeInDb = await this.productTypeRepository.findOne({ where: { unit } });
     if (productTypeInDb) {
       throw new BadRequestException({ message: 'Product type already exit' });
     }
@@ -38,20 +38,20 @@ export class ProductTypeService {
    * find product type data
    * return ProductTypeDto
    */
-  async findAll(page_size?: number, page_index?: number, product_type_name?: string, from_date?: string, to_date?: string): Promise<ProductTypeDto> {
-    logger.log(`page_size: ${page_size}, page_index: ${page_index}, product_type_name: ${product_type_name}, from_date: ${from_date}, to_date: ${to_date}`)
+  async findAll(page_size?: number, page_index?: number, unit?: string, from_date?: string, to_date?: string): Promise<ProductTypeDto> {
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, unit: ${unit}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
       // Option 1
-      if (product_type_name && from_date && to_date && page_size && page_index) {
+      if (unit && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
         const [product_type, count] = await this.productTypeRepository.createQueryBuilder('product_type')
           .where('DATE(product_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-          .andWhere('product_type.product_type_name LIKE :pt_name', { pt_name: `%${product_type_name}%` })
+          .andWhere('product_type.unit LIKE :p_unit', { p_unit: `%${unit}%` })
           .skip(fromIndex)
           .take(takeLimit)
-          .leftJoinAndSelect('product_type.products', 'products')
+          // .leftJoinAndSelect('product_type.products', 'products')
           .orderBy('product_type.id')
           .getManyAndCount()
 
@@ -68,7 +68,7 @@ export class ProductTypeService {
           .where('DATE(product_type.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
-          .leftJoinAndSelect('product_type.products', 'products')
+          // .leftJoinAndSelect('product_type.products', 'products')
           .orderBy('product_type.id')
           .getManyAndCount()
 
@@ -77,15 +77,15 @@ export class ProductTypeService {
         return toProductTypeDto(data, count);
       }
       // Option 3
-      else if (product_type_name && page_size && page_index) {
+      else if (unit && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
         const [product_type, count] = await this.productTypeRepository.findAndCount({
-          relations: ['products'],
+          // relations: ['products'],
           skip: fromIndex,
           take: takeLimit,
-          where: { product_type_name: Like(`%${product_type_name}%`) }
+          where: { unit: Like(`%${unit}%`) }
         });
         logger.log(`product_type => ${product_type}, count: ${count}`);
         const data = product_type.map(value => toProductTypeModel(value));
@@ -97,7 +97,7 @@ export class ProductTypeService {
         const takeLimit = page_size;
 
         const [product_type, count] = await this.productTypeRepository.findAndCount({
-          relations: ['products'],
+          // relations: ['products'],
           skip: fromIndex,
           take: takeLimit
         });
@@ -108,7 +108,7 @@ export class ProductTypeService {
       // Option 5
       else {
         const [product_type, count] = await this.productTypeRepository.findAndCount({
-          relations: ['products'],
+          // relations: ['products'],
         });
         const data = product_type.map(value => toProductTypeModel(value));
         return toProductTypeDto(data, count);
@@ -189,13 +189,13 @@ export class ProductTypeService {
    * return ProductTypeDto
    */
   async remove(id: number): Promise<ProductTypeDto> {
-    const product_type = await this.productTypeRepository.findOne({ where: { id }, relations: ['products'] });
+    const product_type = await this.productTypeRepository.findOne({ where: { id }});
     if (!product_type) {
       throw new BadRequestException({ message: 'Product type not found' });
     }
-    if (product_type.products.length > 0) {
-      throw new BadRequestException({ message: `Can't delete this product type. This product type have related products. If you want to delete this product type, first delete related products.` });
-    }
+    // if (product_type.products.length > 0) {
+    //   throw new BadRequestException({ message: `Can't delete this product type. This product type have related products. If you want to delete this product type, first delete related products.` });
+    // }
     const deleteProductType = await this.productTypeRepository.remove(product_type);
     const data = toProductTypeModel(deleteProductType);
     return toProductTypeDto(data);

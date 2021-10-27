@@ -3,6 +3,7 @@ import { IsNotEmpty } from "class-validator";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
+import { SupplierProduct } from "src/supplier/entities/supplier-product.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
 import { BrandModel } from "./brand.model";
 import { CategoryModel } from "./category.model";
@@ -20,6 +21,10 @@ export class ProductModel {
 
     @ApiProperty()
     @IsNotEmpty()
+    bar_code: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
     product_name: string;
 
     @ApiProperty()
@@ -31,31 +36,15 @@ export class ProductModel {
 
     @ApiProperty()
     @IsNotEmpty()
-    product_type: ProductType;
-
-    @ApiProperty()
-    @IsNotEmpty()
     brand: Brand;
 
     @ApiProperty()
     @IsNotEmpty()
-    supplier: Supplier;
+    supplier_product: SupplierProduct[];
 
     @ApiProperty()
     @IsNotEmpty()
-    buy_unit_price: number;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    sell_unit_price: number;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    expiry_at: Date;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    tax: number;
+    cost: number;
 
     @ApiProperty()
     @IsNotEmpty()
@@ -67,12 +56,8 @@ export class ProductModel {
 
     @ApiProperty()
     @IsNotEmpty()
-    for_sale: boolean;
-
-    @ApiProperty()
-    @IsNotEmpty()
     remarks: string;
-    
+
     @ApiProperty()
     @IsNotEmpty()
     created_at: Date;
