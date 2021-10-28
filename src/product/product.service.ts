@@ -135,10 +135,9 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          // .leftJoinAndSelect('product.product_type', 'product_type')
-          .leftJoinAndSelect('product.supplier_product', 'supplier_product')
-          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
-          .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+          .leftJoinAndSelect('product.supplier_product', 'supplier_product') // product in relation
+          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier') // supplier in relation
+          .leftJoinAndSelect('supplier_product.product_type', 'product_type') // product type in relation
           .where('DATE(product.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .andWhere('product.product_name LIKE :p_name', { p_name: `%${protuct_name}%` })
           .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
@@ -182,7 +181,6 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          // .leftJoinAndSelect('product.product_type', 'product_type')
           .leftJoinAndSelect('product.supplier_product', 'supplier_product')
           .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
           .leftJoinAndSelect('supplier_product.product_type', 'product_type')
@@ -206,7 +204,6 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          // .leftJoinAndSelect('product.product_type', 'product_type')
           .leftJoinAndSelect('product.supplier_product', 'supplier_product')
           .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
           .leftJoinAndSelect('supplier_product.product_type', 'product_type')
@@ -223,7 +220,6 @@ export class ProductService {
         const [product, count] = await this.productRepository.createQueryBuilder('product')
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          // .leftJoinAndSelect('product.product_type', 'product_type')
           .leftJoinAndSelect('product.supplier_product', 'supplier_product')
           .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
           .leftJoinAndSelect('supplier_product.product_type', 'product_type')

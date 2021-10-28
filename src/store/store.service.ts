@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { InjectRepository } from '@nestjs/typeorm';
 import { toStoreDto, toStoreModel } from 'src/helper/mapper/store.mapper';
 import { formattedDate } from 'src/helper/utils';
+import { Product } from 'src/product/entities/product.entity';
 import { Like, Repository } from 'typeorm';
 import { CreateStoreProductDto } from './dto/create-store-product.dto';
 import { CreateStoreDto } from './dto/create-store.dto';
@@ -15,7 +16,8 @@ const logger = new Logger('StoreService')
 export class StoreService {
   constructor(
     @InjectRepository(Store) private readonly storeRepository: Repository<Store>,
-    @InjectRepository(StoreProduct) private readonly storeProductRepository: Repository<StoreProduct>
+    @InjectRepository(StoreProduct) private readonly storeProductRepository: Repository<StoreProduct>,
+    @InjectRepository(Product) private readonly productRepository: Repository<Product>
   ) { }
   /**
    * create new store data
@@ -43,8 +45,8 @@ export class StoreService {
    * create new store data
    * return StoreProduct entity
    */
-   async createStoreProduct(createStoreProductDto: CreateStoreProductDto): Promise<StoreProduct> {
-    
+  async createStoreProduct(createStoreProductDto: CreateStoreProductDto): Promise<StoreProduct> {
+
     const storeProduct: StoreProduct = this.storeProductRepository.create(createStoreProductDto);
     try {
       await this.storeProductRepository.save(storeProduct);
@@ -62,21 +64,25 @@ export class StoreService {
   async findAll(page_size?: number, page_index?: number, store_name?: string, from_date?: string, to_date?: string): Promise<StoreDto> {
     logger.log(`page_size: ${page_size}, page_index: ${page_index}, store_name: ${store_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
+      const productQb = await this.storeRepository.createQueryBuilder('store')
+        .select('store.id');
+
       // Option 1
       if (store_name && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
         const [store, count] = await this.storeRepository.createQueryBuilder('store')
-          .where('DATE(store.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-          .andWhere('store.store_name LIKE :s_name', { s_name: `%${store_name}%` })
           .skip(fromIndex)
           .take(takeLimit)
-          // .leftJoinAndSelect('store.products', 'products')
+          .leftJoinAndSelect('store.store_products', 'store_products')
+          .leftJoinAndSelect('store_products.product', 'product')
+          .leftJoinAndSelect('store_products.product_type', 'product_type')
+          .where('DATE(store.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
+          .andWhere('store.store_name LIKE :s_name', { s_name: `%${store_name}%` })
+          .andWhere('store_products.id IN (' + productQb.getQuery() + ')')
           .orderBy('store.id')
           .getManyAndCount()
-
-        logger.log(`store => ${store}, count => ${count}`);
         const data = store.map(value => toStoreModel(value));
         return toStoreDto(data, count);
       }
@@ -86,14 +92,15 @@ export class StoreService {
         const takeLimit = page_size;
 
         const [store, count] = await this.storeRepository.createQueryBuilder('store')
-          .where('DATE(store.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .skip(fromIndex)
           .take(takeLimit)
-          // .leftJoinAndSelect('store.products', 'products')
+          .leftJoinAndSelect('store.store_products', 'store_products')
+          .leftJoinAndSelect('store_products.product', 'product')
+          .leftJoinAndSelect('store_products.product_type', 'product_type')
+          .where('DATE(store.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
+          .andWhere('store_products.id IN (' + productQb.getQuery() + ')')
           .orderBy('store.id')
           .getManyAndCount()
-
-        logger.log(`store => ${store}, count => ${count}`);
         const data = store.map(value => toStoreModel(value));
         return toStoreDto(data, count);
       }
@@ -102,13 +109,16 @@ export class StoreService {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
-        const [store, count] = await this.storeRepository.findAndCount({
-          // relations: ['products'],
-          skip: fromIndex,
-          take: takeLimit,
-          where: { store_name: Like(`%${store_name}%`) }
-        });
-        logger.log(`store => ${store}, count: ${count}`);
+        const [store, count] = await this.storeRepository.createQueryBuilder('store')
+          .skip(fromIndex)
+          .take(takeLimit)
+          .leftJoinAndSelect('store.store_products', 'store_products')
+          .leftJoinAndSelect('store_products.product', 'product')
+          .leftJoinAndSelect('store_products.product_type', 'product_type')
+          .where('store.store_name LIKE :s_name', { s_name: `%${store_name}%` })
+          .andWhere('store_products.id IN (' + productQb.getQuery() + ')')
+          .orderBy('store.id')
+          .getManyAndCount()
         const data = store.map(value => toStoreModel(value));
         return toStoreDto(data, count)
       }
@@ -117,20 +127,27 @@ export class StoreService {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
-        const [store, count] = await this.storeRepository.findAndCount({
-          // relations: ['products'],
-          skip: fromIndex,
-          take: takeLimit
-        });
-        logger.log(`store => ${store}, count: ${count}`);
+        const [store, count] = await this.storeRepository.createQueryBuilder('store')
+          .skip(fromIndex)
+          .take(takeLimit)
+          .leftJoinAndSelect('store.store_products', 'store_products')
+          .leftJoinAndSelect('store_products.product', 'product')
+          .leftJoinAndSelect('store_products.product_type', 'product_type')
+          .andWhere('store_products.id IN (' + productQb.getQuery() + ')')
+          .orderBy('store.id')
+          .getManyAndCount()
         const data = store.map(value => toStoreModel(value));
         return toStoreDto(data, count)
       }
       // Option 5
       else {
-        const [store, count] = await this.storeRepository.findAndCount({
-          // relations: ['products'],
-        });
+        const [store, count] = await this.storeRepository.createQueryBuilder('store')
+          .leftJoinAndSelect('store.store_products', 'store_products')
+          .leftJoinAndSelect('store_products.product', 'product')
+          .leftJoinAndSelect('store_products.product_type', 'product_type')
+          .where('store_products.id IN (' + productQb.getQuery() + ')')
+          .orderBy('store.id')
+          .getManyAndCount()
         const data = store.map(value => toStoreModel(value));
         return toStoreDto(data, count);
       }
