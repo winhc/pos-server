@@ -12,22 +12,22 @@ export class StoreProduct {
 
     @ApiProperty()
     @ManyToOne(type => Product, product => product.store_product)
-    products: Product;
+    product: Product;
 
     @ApiProperty()
     @ManyToOne( type => Store, store => store.store_products)
-    stores: Store;
+    store: Store;
 
     @ApiProperty()
     @ManyToOne(type => ProductType, product_type => product_type.stores)
     product_type: ProductType;
 
     @ApiProperty()
-    @Column({ nullable: true })
+    @Column({ nullable: false })
     quantity: number;
 
     @ApiProperty()
-    @Column({ nullable: true })
+    @Column({ nullable: false })
     price: number;
 
     @ApiProperty()

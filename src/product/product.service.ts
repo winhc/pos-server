@@ -17,6 +17,10 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
 import { UpdateSupplierProductDto } from 'src/supplier/dto/update-supplier-product.dto';
 import { ImportProductDto } from './dto/import-product.dto';
+import { ExportProductDto } from './dto/export-product.dto';
+import { CreateStoreProductDto } from 'src/store/dto/create-store-product.dto';
+import { StoreProduct } from 'src/store/entities/store-product.entity';
+import { StoreService } from 'src/store/store.service';
 const logger = new Logger('ProductService');
 
 @Injectable()
@@ -29,6 +33,7 @@ export class ProductService {
     private readonly categoryService: CategoryService,
     private readonly productTypeService: ProductTypeService,
     private readonly supplierService: SupplierService,
+    private readonly storeService: StoreService,
   ) { }
   /**
    * Create new product data
@@ -245,11 +250,13 @@ export class ProductService {
     const categoryData = await this.categoryService.find();
     const productTypeData = await this.productTypeService.find();
     const supplierDto = await this.supplierService.find();
+    const storeDto = await this.storeService.find();
     const data: ProductOptionDto = {
       brand: brandData,
       category: categoryData,
       product_type: productTypeData,
-      supplier: supplierDto
+      supplier: supplierDto,
+      store: storeDto
     };
     return data;
   }
@@ -386,6 +393,50 @@ export class ProductService {
           remarks: importProductDto.remarks
         };
         await this.supplierService.createSupplierProduct(createSupplierProductDto);
+      } else {
+        throw new InternalServerErrorException({ message: 'Update product fail' })
+      }
+    } catch (error) {
+      logger.error(`update : ${error}`);
+      throw new InternalServerErrorException({ message: 'Update products fail' })
+    }
+    const updateProduct = await this.findOne(product.id);
+    const data = toProductModel(updateProduct);
+    return toProductDto(data);
+  }
+
+  /**
+   * Update product row data that matches given id into product table
+   * Insert new records into store and product in relation table
+   * return ProductDto
+   */
+   async exportProduct(id: number, exportProductDto: ExportProductDto): Promise<ProductDto> {
+    const product = await this.findOne(id);
+    if (!product) {
+      throw new BadRequestException({ message: 'Product not found' });
+    }
+    try {
+      exportProductDto.updated_at = new Date();
+
+      const exportProductData = new ImportProductDto();
+      exportProductData.quantity = product.quantity - exportProductDto.quantity;
+      exportProductData.remarks = exportProductDto.remarks;
+      exportProductData.updated_at = exportProductDto.updated_at;
+
+      const productToUpdate = Object.assign(product, exportProductData);
+      const updateResult = await this.productRepository.update(id, productToUpdate);
+      if (updateResult.affected > 0) {
+        const createStoreProductDto: CreateStoreProductDto = {
+          product: product,
+          store: exportProductDto.store,
+          product_type: exportProductDto.product_type,
+          quantity: exportProductDto.quantity,
+          price: exportProductDto.price,
+          tax: exportProductDto.tax,
+          alert_quantity: exportProductDto.alert_quantity,
+          remarks: exportProductDto.remarks
+        };
+        await this.storeService.createStoreProduct(createStoreProductDto);
       } else {
         throw new InternalServerErrorException({ message: 'Update product fail' })
       }

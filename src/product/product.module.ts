@@ -10,6 +10,7 @@ import { ProductTypeModule } from 'src/product-type/product-type.module';
 import { SupplierModule } from 'src/supplier/supplier.module';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
+import { StoreModule } from 'src/store/store.module';
 
 @Module({
   imports: [AuthModule,
@@ -17,7 +18,8 @@ import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
     BrandModule,
     CategoryModule,
     ProductTypeModule,
-    SupplierModule
+    SupplierModule,
+    StoreModule
   ],
   controllers: [ProductController],
   providers: [ProductService],

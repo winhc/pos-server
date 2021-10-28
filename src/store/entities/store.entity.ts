@@ -30,6 +30,6 @@ export class Store {
     updated_at: Date;
 
     @ApiProperty()
-    @OneToMany(type => StoreProduct, storeProduct => storeProduct.stores)
+    @OneToMany(type => StoreProduct, storeProduct => storeProduct.store)
     store_products: StoreProduct[];
 }

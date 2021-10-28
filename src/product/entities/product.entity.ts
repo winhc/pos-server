@@ -68,6 +68,6 @@ export class Product {
     supplier_product: SupplierProduct[];
 
     @ApiProperty()
-    @OneToMany(type => StoreProduct, storeProduct => storeProduct.products)
+    @OneToMany(type => StoreProduct, storeProduct => storeProduct.product)
     store_product: StoreProduct[];
 }

@@ -10,6 +10,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ProductOptionDto } from './dto/product-option.dto';
 import { ImportProductDto } from './dto/import-product.dto';
+import { ExportProductDto } from './dto/export-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -97,7 +98,7 @@ export class ProductController {
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
-  @Patch(':id/:supplier_product_id')
+  @Put(':id/:supplier_product_id')
   @UseInterceptors(FileInterceptor('image',
     {
       storage: diskStorage({
@@ -118,15 +119,27 @@ export class ProductController {
   }
 
   /**
-   * import product by id
+   * import product
    */
-  @ApiOkResponse({ type: ProductDto, description: 'Response updated product' })
+  @ApiOkResponse({ type: ProductDto, description: 'Response import product' })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
-  @Put(':id')
+  @Patch('import/:id')
   async importProduct(@Param('id', ParseIntPipe) id: number, @Body() importProductDto: ImportProductDto): Promise<ProductDto> {
     return await this.productService.importProduct(id, importProductDto);
+  }
+
+  /**
+   * export product
+   */
+  @ApiOkResponse({ type: ProductDto, description: 'Response export product' })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
+  @Patch('export/:id')
+  async exportProduct(@Param('id', ParseIntPipe) id: number, @Body() exportProductDto: ExportProductDto): Promise<ProductDto> {
+    return await this.productService.exportProduct(id, exportProductDto);
   }
 
   /**
