@@ -1,9 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ProductType } from 'src/product-type/entities/product-type.entity';
 import { Store } from 'src/store/entities/store.entity';
-import { CreateProductDto } from './create-product.dto';
 
 export class ExportProductDto {
 

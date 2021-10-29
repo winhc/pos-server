@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BrandService } from 'src/brand/brand.service';
 import { toProductDto, toProductModel } from 'src/helper/mapper/product.maper';
 import { ProductTypeService } from 'src/product-type/product-type.service';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductOptionDto } from './dto/product-option.dto';
 import { ProductDto } from './dto/product.dto';
@@ -15,13 +15,10 @@ import { SupplierService } from 'src/supplier/supplier.service';
 import { CreateSupplierProductDto } from 'src/supplier/dto/create-supplier-product.dto';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
-import { UpdateSupplierProductDto } from 'src/supplier/dto/update-supplier-product.dto';
-import { ImportProductDto } from './dto/import-product.dto';
-import { ExportProductDto } from './dto/export-product.dto';
 import { CreateStoreProductDto } from 'src/store/dto/create-store-product.dto';
-import { StoreProduct } from 'src/store/entities/store-product.entity';
 import { StoreService } from 'src/store/store.service';
-import { ExportProductOptionDto } from './dto/export-product-option.dto';
+import { ImportProductDto } from 'src/warehouse/dto/import-product.dto';
+import { ExportProductDto } from 'src/warehouse/dto/export-product.dto';
 const logger = new Logger('ProductService');
 
 @Injectable()
@@ -56,21 +53,6 @@ export class ProductService {
     const product: Product = this.productRepository.create(createProductDto);
     try {
       await this.productRepository.save(product);
-      // if (createProduct.id > 0) {
-      //   const createSupplierProductDto: CreateSupplierProductDto = {
-      //     product: product,
-      //     supplier: createProductDto.supplier,
-      //     product_type: createProductDto.product_type,
-      //     quantity: createProductDto.quantity,
-      //     cost: createProductDto.cost,
-      //     alert_quantity: createProductDto.alert_quantity,
-      //     expiry_at: createProductDto.expiry_at,
-      //     remarks: createProductDto.remarks
-      //   };
-      //   await this.supplierService.createSupplierProduct(createSupplierProductDto);
-      // } else {
-      //   throw new InternalServerErrorException({ message: 'Create product fail' });
-      // }
     } catch (error) {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create products fail' });
@@ -237,59 +219,38 @@ export class ProductService {
     }
   }
 
-  async findToExportProduct(): Promise<ProductDto> {
-    const [product, count] = await this.productRepository.createQueryBuilder('product')
-      .leftJoinAndSelect('product.category', 'category')
-      .leftJoinAndSelect('product.brand', 'brand')
-      .where('product.quantity > ' + 0 )
-      .orderBy('product.id')
-      .getManyAndCount()
-
-    logger.log(`product => ${product}, count: ${count}`);
-    const data = product.map(value => toProductModel(value));
-    return toProductDto(data, count);
-    return;
-  }
-
   /**
-   * import option
+   * find to export and import product option
    */
-   async findImportProductOption(): Promise<ExportProductOptionDto> {
-    const product = await this.findToExportProduct();
-    const store = await this.storeService.find();
-    const data: ExportProductOptionDto = {product,store};
-    return data;
+  async findImportExportProductOption({ isExport }): Promise<ProductDto> {
+    if (isExport) {
+      const [product, count] = await this.productRepository.createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.brand', 'brand')
+        .where('product.quantity > ' + 0)
+        .orderBy('product.id')
+        .getManyAndCount()
+      const data = product.map(value => toProductModel(value));
+      return toProductDto(data, count);
+    } else {
+      const [product, count] = await this.productRepository.createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.brand', 'brand')
+        .orderBy('product.id')
+        .getManyAndCount()
+      const data = product.map(value => toProductModel(value));
+      return toProductDto(data, count);
+    }
   }
 
   /**
-   * export option
-   */
-   async findExportProductOption(): Promise<ExportProductOptionDto> {
-    const product = await this.findToExportProduct();
-    const store = await this.storeService.find();
-    const data: ExportProductOptionDto = {product,store};
-    return data;
-  }
-
-  /**
-   * find categoty, brand, product_type and supplier
+   * find categoty and brand
    * for product options
    */
   async findProductOption(): Promise<ProductOptionDto> {
-    const productData = await this.findToExportProduct();
-    const brandData = await this.brandService.find();
-    const categoryData = await this.categoryService.find();
-    const productTypeData = await this.productTypeService.find();
-    const supplierDto = await this.supplierService.find();
-    const storeDto = await this.storeService.find();
-    const data: ProductOptionDto = {
-      product: productData,
-      brand: brandData,
-      category: categoryData,
-      product_type: productTypeData,
-      supplier: supplierDto,
-      store: storeDto
-    };
+    const brand = await this.brandService.find();
+    const category = await this.categoryService.find();
+    const data: ProductOptionDto = { brand, category };
     return data;
   }
 
@@ -405,6 +366,7 @@ export class ProductService {
       importProductDto.updated_at = new Date();
 
       const importProductData = new ImportProductDto();
+      importProductData.bar_code = importProductDto.bar_code;
       importProductData.cost = product.cost + importProductDto.cost;
       importProductData.quantity = product.quantity + importProductDto.quantity;
       importProductData.alert_quantity = product.alert_quantity + importProductDto.alert_quantity;

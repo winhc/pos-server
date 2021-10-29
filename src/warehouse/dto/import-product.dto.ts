@@ -3,15 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ProductType } from 'src/product-type/entities/product-type.entity';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { CreateProductDto } from './create-product.dto';
 
-export class ImportProductDto extends PartialType(CreateProductDto) {
+export class ImportProductDto {
 
-    @ApiProperty({required: true})
+    @ApiProperty({ required: true })
     @IsNotEmpty()
     @IsString()
     bar_code: string;
-    
+
     @ApiProperty({ required: true })
     @IsNotEmpty()
     product_type: ProductType;
