@@ -7,27 +7,11 @@ import { StoreDto } from "src/store/dto/store.dto";
 import { SupplierDto } from "src/supplier/dto/supplier.dto";
 import { ProductDto } from "./product.dto";
 
-export class ProductOptionDto {
+export class ExportProductOptionDto {
 
     @ApiProperty()
     @IsNotEmpty()
     product: ProductDto
-
-    @ApiProperty()
-    @IsNotEmpty()
-    brand: BrandDto
-
-    @ApiProperty()
-    @IsNotEmpty()
-    category: CategoryDto
-
-    @ApiProperty()
-    @IsNotEmpty()
-    product_type: ProductTypeDto
-
-    @ApiProperty()
-    @IsNotEmpty()
-    supplier: SupplierDto
 
     @ApiProperty()
     @IsNotEmpty()

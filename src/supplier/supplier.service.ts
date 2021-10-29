@@ -160,6 +160,17 @@ export class SupplierService {
     }
   }
 
+  async findSupplierProduct(): Promise<SupplierProduct[]> {
+    const supplierProduct: SupplierProduct[] = await this.supplierProductRepository.createQueryBuilder('supplier_product')
+      .leftJoinAndSelect('supplier_product.product', 'product')
+      .leftJoinAndSelect('supplier_product.supplier', 'supplier')
+      .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+      .orderBy('supplier_product.id')
+      .getMany();
+
+    return supplierProduct;
+  }
+
   /**
    * find supplier data
    * return SupplierDto

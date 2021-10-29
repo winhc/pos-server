@@ -20,7 +20,7 @@ export class Product {
     product_code: string;
 
     @ApiProperty()
-    @Column({ nullable: false, unique: true, length: 13})
+    @Column({ nullable: true, unique: true, length: 13})
     bar_code: string;
 
     @ApiProperty()

@@ -7,6 +7,11 @@ import { CreateProductDto } from './create-product.dto';
 
 export class ImportProductDto extends PartialType(CreateProductDto) {
 
+    @ApiProperty({required: true})
+    @IsNotEmpty()
+    @IsString()
+    bar_code: string;
+    
     @ApiProperty({ required: true })
     @IsNotEmpty()
     product_type: ProductType;

@@ -21,6 +21,7 @@ import { ExportProductDto } from './dto/export-product.dto';
 import { CreateStoreProductDto } from 'src/store/dto/create-store-product.dto';
 import { StoreProduct } from 'src/store/entities/store-product.entity';
 import { StoreService } from 'src/store/store.service';
+import { ExportProductOptionDto } from './dto/export-product-option.dto';
 const logger = new Logger('ProductService');
 
 @Injectable()
@@ -42,7 +43,7 @@ export class ProductService {
    */
   async create(createProductDto: CreateProductDto, image_name?: string): Promise<ProductDto> {
     createProductDto.image = image_name;
-    const { product_name, product_code, supplier } = createProductDto;
+    const { product_name, product_code } = createProductDto;
 
     const productNameInDb = await this.productRepository.findOne({ where: { product_name } });
     if (productNameInDb) {
@@ -54,22 +55,22 @@ export class ProductService {
     }
     const product: Product = this.productRepository.create(createProductDto);
     try {
-      const createProduct = await this.productRepository.save(product);
-      if (createProduct.id > 0) {
-        const createSupplierProductDto: CreateSupplierProductDto = {
-          product: product,
-          supplier: createProductDto.supplier,
-          product_type: createProductDto.product_type,
-          quantity: createProductDto.quantity,
-          cost: createProductDto.cost,
-          alert_quantity: createProductDto.alert_quantity,
-          expiry_at: createProductDto.expiry_at,
-          remarks: createProductDto.remarks
-        };
-        await this.supplierService.createSupplierProduct(createSupplierProductDto);
-      } else {
-        throw new InternalServerErrorException({ message: 'Create product fail' });
-      }
+      await this.productRepository.save(product);
+      // if (createProduct.id > 0) {
+      //   const createSupplierProductDto: CreateSupplierProductDto = {
+      //     product: product,
+      //     supplier: createProductDto.supplier,
+      //     product_type: createProductDto.product_type,
+      //     quantity: createProductDto.quantity,
+      //     cost: createProductDto.cost,
+      //     alert_quantity: createProductDto.alert_quantity,
+      //     expiry_at: createProductDto.expiry_at,
+      //     remarks: createProductDto.remarks
+      //   };
+      //   await this.supplierService.createSupplierProduct(createSupplierProductDto);
+      // } else {
+      //   throw new InternalServerErrorException({ message: 'Create product fail' });
+      // }
     } catch (error) {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create products fail' });
@@ -86,8 +87,8 @@ export class ProductService {
     logger.log(`page_size: ${page_size}, page_index: ${page_index}, protuct_name: ${protuct_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
 
-      const supplierQb = await this.supplierRepository.createQueryBuilder('supplier')
-        .select('supplier.id');
+      // const supplierQb = await this.supplierRepository.createQueryBuilder('supplier')
+      //   .select('supplier.id');
 
       // Option 1
       if (protuct_name && from_date && to_date && page_size && page_index) {
@@ -135,12 +136,12 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          .leftJoinAndSelect('product.supplier_product', 'supplier_product') // product in relation
-          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier') // supplier in relation
-          .leftJoinAndSelect('supplier_product.product_type', 'product_type') // product type in relation
+          // .leftJoinAndSelect('product.supplier_product', 'supplier_product') // product in relation
+          // .leftJoinAndSelect('supplier_product.supplier', 'product_supplier') // supplier in relation
+          // .leftJoinAndSelect('supplier_product.product_type', 'product_type') // product type in relation
           .where('DATE(product.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
           .andWhere('product.product_name LIKE :p_name', { p_name: `%${protuct_name}%` })
-          .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
+          // .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -158,12 +159,11 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          // .leftJoinAndSelect('product.product_type', 'product_type')
-          .leftJoinAndSelect('product.supplier_product', 'supplier_product')
-          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
-          .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+          // .leftJoinAndSelect('product.supplier_product', 'supplier_product')
+          // .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
+          // .leftJoinAndSelect('supplier_product.product_type', 'product_type')
           .where('DATE(product.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-          .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
+          // .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -181,11 +181,11 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          .leftJoinAndSelect('product.supplier_product', 'supplier_product')
-          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
-          .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+          // .leftJoinAndSelect('product.supplier_product', 'supplier_product')
+          // .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
+          // .leftJoinAndSelect('supplier_product.product_type', 'product_type')
           .where('product.product_name LIKE :p_name', { p_name: `%${protuct_name}%` })
-          .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
+          // .andWhere('product_supplier.id IN (' + supplierQb.getQuery() + ')')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -204,10 +204,10 @@ export class ProductService {
           .take(takeLimit)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          .leftJoinAndSelect('product.supplier_product', 'supplier_product')
-          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
-          .leftJoinAndSelect('supplier_product.product_type', 'product_type')
-          .where('product_supplier.id IN (' + supplierQb.getQuery() + ')')
+          // .leftJoinAndSelect('product.supplier_product', 'supplier_product')
+          // .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
+          // .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+          // .where('product_supplier.id IN (' + supplierQb.getQuery() + ')')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -220,10 +220,10 @@ export class ProductService {
         const [product, count] = await this.productRepository.createQueryBuilder('product')
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
-          .leftJoinAndSelect('product.supplier_product', 'supplier_product')
-          .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
-          .leftJoinAndSelect('supplier_product.product_type', 'product_type')
-          .where('product_supplier.id IN (' + supplierQb.getQuery() + ')')
+          // .leftJoinAndSelect('product.supplier_product', 'supplier_product')
+          // .leftJoinAndSelect('supplier_product.supplier', 'product_supplier')
+          // .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+          // .where('product_supplier.id IN (' + supplierQb.getQuery() + ')')
           .orderBy('product.id')
           .getManyAndCount()
 
@@ -237,17 +237,53 @@ export class ProductService {
     }
   }
 
+  async findToExportProduct(): Promise<ProductDto> {
+    const [product, count] = await this.productRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.brand', 'brand')
+      .where('product.quantity > ' + 0 )
+      .orderBy('product.id')
+      .getManyAndCount()
+
+    logger.log(`product => ${product}, count: ${count}`);
+    const data = product.map(value => toProductModel(value));
+    return toProductDto(data, count);
+    return;
+  }
+
+  /**
+   * import option
+   */
+   async findImportProductOption(): Promise<ExportProductOptionDto> {
+    const product = await this.findToExportProduct();
+    const store = await this.storeService.find();
+    const data: ExportProductOptionDto = {product,store};
+    return data;
+  }
+
+  /**
+   * export option
+   */
+   async findExportProductOption(): Promise<ExportProductOptionDto> {
+    const product = await this.findToExportProduct();
+    const store = await this.storeService.find();
+    const data: ExportProductOptionDto = {product,store};
+    return data;
+  }
+
   /**
    * find categoty, brand, product_type and supplier
    * for product options
    */
   async findProductOption(): Promise<ProductOptionDto> {
+    const productData = await this.findToExportProduct();
     const brandData = await this.brandService.find();
     const categoryData = await this.categoryService.find();
     const productTypeData = await this.productTypeService.find();
     const supplierDto = await this.supplierService.find();
     const storeDto = await this.storeService.find();
     const data: ProductOptionDto = {
+      product: productData,
       brand: brandData,
       category: categoryData,
       product_type: productTypeData,
@@ -317,35 +353,35 @@ export class ProductService {
       updateProductDto.updated_at = new Date();
 
       const updateProductData = new UpdateProductDto();
-      updateProductData.bar_code = updateProductDto.bar_code;
+      // updateProductData.bar_code = updateProductDto.bar_code;
       updateProductData.product_name = updateProductDto.product_name;
       updateProductData.category = updateProductDto.category;
       updateProductData.brand = updateProductDto.brand;
       updateProductData.image = updateProductDto.image;
-      updateProductData.cost = updateProductDto.cost;
-      updateProductData.quantity = updateProductDto.quantity;
-      updateProductData.alert_quantity = updateProductDto.alert_quantity;
+      // updateProductData.cost = updateProductDto.cost;
+      // updateProductData.quantity = updateProductDto.quantity;
+      // updateProductData.alert_quantity = updateProductDto.alert_quantity;
       updateProductData.remarks = updateProductDto.remarks;
       updateProductData.updated_at = updateProductDto.updated_at;
 
       const productToUpdate = Object.assign(product, updateProductData);
-      const updateResult = await this.productRepository.update(id, productToUpdate);
-      if (updateResult.affected > 0) {
-        const updateSupplierProductDto: UpdateSupplierProductDto = {
-          product: product,
-          supplier: updateProductDto.supplier,
-          product_type: updateProductDto.product_type,
-          quantity: updateProductDto.quantity,
-          cost: updateProductDto.cost,
-          alert_quantity: updateProductDto.alert_quantity,
-          expiry_at: updateProductDto.expiry_at,
-          remarks: updateProductDto.remarks,
-          updated_at: updateProductDto.updated_at
-        };
-        await this.supplierService.updateSupplierProduct(supplier_product_id, updateSupplierProductDto);
-      } else {
-        throw new InternalServerErrorException({ message: 'Update product fail' })
-      }
+      await this.productRepository.update(id, productToUpdate);
+      // if (updateResult.affected > 0) {
+      //   const updateSupplierProductDto: UpdateSupplierProductDto = {
+      //     product: product,
+      //     supplier: updateProductDto.supplier,
+      //     product_type: updateProductDto.product_type,
+      //     quantity: updateProductDto.quantity,
+      //     cost: updateProductDto.cost,
+      //     alert_quantity: updateProductDto.alert_quantity,
+      //     expiry_at: updateProductDto.expiry_at,
+      //     remarks: updateProductDto.remarks,
+      //     updated_at: updateProductDto.updated_at
+      //   };
+      //   await this.supplierService.updateSupplierProduct(supplier_product_id, updateSupplierProductDto);
+      // } else {
+      //   throw new InternalServerErrorException({ message: 'Update product fail' })
+      // }
     } catch (error) {
       logger.error(`update : ${error}`);
       throw new InternalServerErrorException({ message: 'Update products fail' })
@@ -406,7 +442,7 @@ export class ProductService {
    * Insert new records into store and product in relation table
    * return ProductDto
    */
-   async exportProduct(id: number, exportProductDto: ExportProductDto): Promise<ProductDto> {
+  async exportProduct(id: number, exportProductDto: ExportProductDto): Promise<ProductDto> {
     const product = await this.findOne(id);
     if (!product) {
       throw new BadRequestException({ message: 'Product not found' });

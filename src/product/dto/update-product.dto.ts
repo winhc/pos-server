@@ -9,51 +9,44 @@ import { CreateProductDto } from './create-product.dto';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    @IsString()
-    bar_code: string;
+    @ApiProperty({ required: false })
+    bar_code?: string;
 
-    @ApiProperty({required: true})
+    @ApiProperty({ required: true })
     @IsNotEmpty()
     @IsString()
     product_name: string;
 
-    @ApiProperty({required: false})
+    @ApiProperty({ required: false })
     image?: string;
 
-    @ApiProperty({required: true})
+    @ApiProperty({ required: true })
     @IsNotEmpty()
     category: Category;
 
-    @ApiProperty({required: true})
+    @ApiProperty({ required: true })
     @IsNotEmpty()
     brand: Brand;
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    product_type: ProductType;
+    @ApiProperty({ required: false })
+    product_type?: ProductType;
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    supplier: Supplier ;
+    @ApiProperty({ required: false })
+    supplier?: Supplier;
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    quantity: number;
+    @ApiProperty({ required: false })
+    quantity?: number;
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    cost: number;
+    @ApiProperty({ required: false })
+    cost?: number;
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    alert_quantity: number;
+    @ApiProperty({ required: false })
+    alert_quantity?: number;
 
-    @ApiProperty({required: false})
+    @ApiProperty({ required: false })
     expiry_at?: Date;
-    
-    @ApiProperty({required: false})
+
+    @ApiProperty({ required: false })
     remarks?: string;
 
     @ApiProperty({ required: false })

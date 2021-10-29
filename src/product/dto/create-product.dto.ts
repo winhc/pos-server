@@ -16,11 +16,6 @@ export class CreateProductDto {
     @ApiProperty({required: true})
     @IsNotEmpty()
     @IsString()
-    bar_code: string;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    @IsString()
     product_name: string;
 
     @ApiProperty({required: false})
@@ -34,29 +29,6 @@ export class CreateProductDto {
     @IsNotEmpty()
     brand: Brand;
 
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    product_type: ProductType;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    supplier: Supplier ;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    quantity: number;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    cost: number;
-
-    @ApiProperty({required: true})
-    @IsNotEmpty()
-    alert_quantity: number;
-
-    @ApiProperty({required: false})
-    expiry_at?: Date;
-    
     @ApiProperty({required: false})
     remarks?: string;
     
