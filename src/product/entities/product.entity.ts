@@ -20,29 +20,13 @@ export class Product {
     product_code: string;
 
     @ApiProperty()
-    @Column({ nullable: true, unique: true, length: 13})
-    bar_code: string;
-
-    @ApiProperty()
     @Column({ nullable: false, unique: true })
     product_name: string;
 
     @ApiProperty()
     @Column({ nullable: true })
     image: string;
-
-    @ApiProperty()
-    @Column({ nullable: true })
-    cost: number;
-
-    @ApiProperty()
-    @Column({ nullable: true })
-    quantity: number;
-
-    @ApiProperty()
-    @Column({ nullable: true })
-    alert_quantity: number;
-
+    
     @ApiProperty()
     @Column({ nullable: true })
     remarks: string;

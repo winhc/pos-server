@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { toSupplierProductDto, toSupplierProductModel } from 'src/helper/mapper/supplier-product.mapper';
 import { toSupplierDto, toSupplierModel } from 'src/helper/mapper/supplier.mapper';
 import { formattedDate } from 'src/helper/utils';
 import { Like, Repository } from 'typeorm';
 import { CreateSupplierProductDto } from './dto/create-supplier-product.dto';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
+import { SupplierProductDto } from './dto/supplier-product.dto';
 import { SupplierDto } from './dto/supplier.dto';
 import { UpdateSupplierProductDto } from './dto/update-supplier-product.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -42,17 +44,18 @@ export class SupplierService {
 
   /**
    * create new supplier product data
-   * return SupplierProduct entity
+   * return SupplierProductDto
    */
-  async createSupplierProduct(createSupplierProductDto: CreateSupplierProductDto): Promise<SupplierProduct> {
-    const supplierProduct: SupplierProduct = this.supplierProductRepository.create(createSupplierProductDto);
+  async createSupplierProduct(importProductDto: CreateSupplierProductDto): Promise<SupplierProductDto> {
+    const supplierProduct: SupplierProduct = this.supplierProductRepository.create(importProductDto);
     try {
       await this.supplierProductRepository.save(supplierProduct);
     } catch (error) {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create supplier product fail' });
     }
-    return supplierProduct;
+    const data = toSupplierProductModel(supplierProduct);
+    return toSupplierProductDto(data);
   }
 
   /**
@@ -160,15 +163,17 @@ export class SupplierService {
     }
   }
 
-  async findSupplierProduct(): Promise<SupplierProduct[]> {
-    const supplierProduct: SupplierProduct[] = await this.supplierProductRepository.createQueryBuilder('supplier_product')
+  async findSupplierProduct(): Promise<SupplierProductDto> {
+    const [supplier_product,count] = await this.supplierProductRepository.createQueryBuilder('supplier_product')
       .leftJoinAndSelect('supplier_product.product', 'product')
       .leftJoinAndSelect('supplier_product.supplier', 'supplier')
       .leftJoinAndSelect('supplier_product.product_type', 'product_type')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.brand', 'brand')
       .orderBy('supplier_product.id')
-      .getMany();
-
-    return supplierProduct;
+      .getManyAndCount();
+      const data = supplier_product.map(value => toSupplierProductModel(value));
+      return toSupplierProductDto(data, count);
   }
 
   /**

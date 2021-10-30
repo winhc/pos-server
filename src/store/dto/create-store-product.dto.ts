@@ -1,14 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
-import { ProductType } from "src/product-type/entities/product-type.entity";
-import { Product } from "src/product/entities/product.entity";
+import { ProductTypeModel } from "src/helper/model/product-type.model";
+import { ProductModel } from "src/helper/model/product.model";
 import { Store } from "../entities/store.entity";
 
 export class CreateStoreProductDto {
 
     @ApiProperty({ required: true })
     @IsNotEmpty()
-    product: Product;
+    bar_code: string;
+
+    @ApiProperty({ required: true })
+    @IsNotEmpty()
+    product: ProductModel;
 
     @ApiProperty({ required: true })
     @IsNotEmpty()
@@ -16,7 +20,7 @@ export class CreateStoreProductDto {
 
     @ApiProperty({ required: true })
     @IsNotEmpty()
-    product_type: ProductType;
+    product_type: ProductTypeModel;
 
     @ApiProperty({ required: true })
     @IsNotEmpty()

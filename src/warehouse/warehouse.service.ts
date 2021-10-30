@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { ProductTypeService } from 'src/product-type/product-type.service';
 import { ProductDto } from 'src/product/dto/product.dto';
 import { ProductService } from 'src/product/product.service';
+import { CreateStoreProductDto } from 'src/store/dto/create-store-product.dto';
+import { StoreProductDto } from 'src/store/dto/store-product.dto';
+import { StoreProduct } from 'src/store/entities/store-product.entity';
 import { StoreService } from 'src/store/store.service';
-import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
+import { CreateSupplierProductDto } from 'src/supplier/dto/create-supplier-product.dto';
+import { SupplierProductDto } from 'src/supplier/dto/supplier-product.dto';
 import { SupplierService } from 'src/supplier/supplier.service';
 import { ExportProductOptionDto } from './dto/export-product-option.dto';
-import { ExportProductDto } from './dto/export-product.dto';
 import { ImportProductOptionDto } from './dto/import-product-option.dto';
-import { ImportProductDto } from './dto/import-product.dto';
 
 @Injectable()
 export class WarehouseService {
@@ -19,12 +21,18 @@ export class WarehouseService {
     private readonly storeService: StoreService,
   ) { }
 
-  async importProduct(id: number, importProductDto: ImportProductDto): Promise<ProductDto> {
-    return await this.productService.importProduct(id, importProductDto);
+  /**
+   * Insert new records into supplier and product relation table
+   */
+  async importProduct(createSupplierProductDto: CreateSupplierProductDto): Promise<SupplierProductDto> {
+    return await this.supplierService.createSupplierProduct(createSupplierProductDto);
   }
 
-  async exportProduct(id: number, exportProductDto: ExportProductDto): Promise<ProductDto> {
-    return await this.productService.exportProduct(id, exportProductDto);
+  /**
+   * Insert new records into store and product relation table
+   */
+  async exportProduct(createStoreProductDto: CreateStoreProductDto): Promise<StoreProductDto> {
+    return await this.storeService.createStoreProduct(createStoreProductDto);
   }
 
   /**
@@ -49,7 +57,7 @@ export class WarehouseService {
     return data;
   }
 
-  async findAll(): Promise<SupplierProduct[]> {
+  async findAll(): Promise<SupplierProductDto> {
     return await this.supplierService.findSupplierProduct();
   }
 

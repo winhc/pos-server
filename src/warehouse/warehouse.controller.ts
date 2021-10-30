@@ -1,13 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query } from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
-import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { SupplierProduct } from 'src/supplier/entities/supplier-product.entity';
 import { ImportProductOptionDto } from './dto/import-product-option.dto';
 import { ExportProductOptionDto } from './dto/export-product-option.dto';
-import { ProductDto } from 'src/product/dto/product.dto';
-import { ImportProductDto } from './dto/import-product.dto';
-import { ExportProductDto } from './dto/export-product.dto';
+import { SupplierProductDto } from 'src/supplier/dto/supplier-product.dto';
+import { CreateSupplierProductDto } from 'src/supplier/dto/create-supplier-product.dto';
+import { StoreProductDto } from 'src/store/dto/store-product.dto';
+import { CreateStoreProductDto } from 'src/store/dto/create-store-product.dto';
 
 @ApiTags('warehouses')
 @Controller('warehouses')
@@ -20,8 +20,26 @@ export class WarehouseController {
   //   return this.warehouseService.create(createWarehouseDto);
   // }
 
+  /**
+   * find all product OR
+   * search product by product_name
+   */
+  @ApiOkResponse({ type: SupplierProductDto, description: 'Response all product or search product by product_name' })
+  @ApiQuery({ name: 'page_size', required: false })
+  @ApiQuery({ name: 'page_index', required: false })
+  @ApiQuery({ name: 'product_name', required: false })
+  @ApiQuery({ name: 'from_date', required: false })
+  @ApiQuery({ name: 'to_date', required: false })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
   @Get()
-  async findAll(): Promise<SupplierProduct[]> {
+  async findAll(
+    @Query('page_size') page_size?: number,
+    @Query('page_index') page_index?: number,
+    @Query('product_name') product_name?: string,
+    @Query('from_date') from_date?: string,
+    @Query('to_date') to_date?: string): Promise<SupplierProductDto> {
     return this.warehouseService.findAll();
   }
 
@@ -38,26 +56,26 @@ export class WarehouseController {
   /**
    * import product to warehouse
    */
-   @ApiOkResponse({ type: ProductDto, description: 'Response import product' })
-   @ApiNotFoundResponse()
-   @ApiBadRequestResponse()
-   @ApiInternalServerErrorResponse()
-  @Patch('import/:id')
-  async importProduct(@Param('id', ParseIntPipe) id: number, @Body() importProductDto: ImportProductDto): Promise<ProductDto> {
-    return await this.warehouseService.importProduct(id, importProductDto);
+  @ApiOkResponse({ type: SupplierProductDto, description: 'Response import product' })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
+  @Post('import-product')
+  async importProduct(@Body() createSupplierProductDto: CreateSupplierProductDto): Promise<SupplierProductDto> {
+    return await this.warehouseService.importProduct(createSupplierProductDto);
   }
 
   /**
    * export product
    */
-   @ApiOkResponse({ type: ProductDto, description: 'Response export product' })
-   @ApiNotFoundResponse()
-   @ApiBadRequestResponse()
-   @ApiInternalServerErrorResponse()
-   @Patch('export/:id')
-   async exportProduct(@Param('id', ParseIntPipe) id: number, @Body() exportProductDto: ExportProductDto): Promise<ProductDto> {
-     return await this.warehouseService.exportProduct(id, exportProductDto);
-   }
+  @ApiOkResponse({ type: StoreProductDto, description: 'Response export product' })
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
+  @Post('export-product')
+  async exportProduct(@Body() createStoreProductDto: CreateStoreProductDto): Promise<StoreProductDto> {
+    return await this.warehouseService.exportProduct(createStoreProductDto);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

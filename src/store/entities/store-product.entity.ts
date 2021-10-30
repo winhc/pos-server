@@ -11,6 +11,10 @@ export class StoreProduct {
     id: number;
 
     @ApiProperty()
+    @Column({ nullable: false, unique: true, length: 13})
+    bar_code: string;
+
+    @ApiProperty()
     @ManyToOne(type => Product, product => product.store_product)
     product: Product;
 

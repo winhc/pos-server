@@ -9,9 +9,6 @@ import { CreateProductDto } from './create-product.dto';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
 
-    @ApiProperty({ required: false })
-    bar_code?: string;
-
     @ApiProperty({ required: true })
     @IsNotEmpty()
     @IsString()
@@ -27,25 +24,7 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     @ApiProperty({ required: true })
     @IsNotEmpty()
     brand: Brand;
-
-    @ApiProperty({ required: false })
-    product_type?: ProductType;
-
-    @ApiProperty({ required: false })
-    supplier?: Supplier;
-
-    @ApiProperty({ required: false })
-    quantity?: number;
-
-    @ApiProperty({ required: false })
-    cost?: number;
-
-    @ApiProperty({ required: false })
-    alert_quantity?: number;
-
-    @ApiProperty({ required: false })
-    expiry_at?: Date;
-
+    
     @ApiProperty({ required: false })
     remarks?: string;
 

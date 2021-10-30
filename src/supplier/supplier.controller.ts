@@ -71,6 +71,15 @@ export class SupplierController {
     return await this.supplierService.update(id, updateSupplierDto);
   }
 
+  // @ApiOkResponse({ type: SupplierProductDto, description: 'Response supplier product' })
+  // @ApiNotFoundResponse()
+  // @ApiBadRequestResponse()
+  // @ApiInternalServerErrorResponse()
+  // @Patch('import-product')
+  // async importProduct(@Body() importProductDto: ImportProductDto): Promise<SupplierProductDto> {
+  //   return await this.supplierService.createSupplierProduct(importProductDto);
+  // }
+
   /**
    * delete supplier by id
    */

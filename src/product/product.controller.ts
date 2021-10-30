@@ -66,7 +66,7 @@ export class ProductController {
   }
 
   /**
-   * find all product options
+   * find product options
    */
   @ApiOkResponse({ type: ProductOptionDto, description: 'Response all product options' })
   @ApiNotFoundResponse()
@@ -96,7 +96,7 @@ export class ProductController {
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
-  @Patch(':id/:supplier_product_id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('image',
     {
       storage: diskStorage({
@@ -109,11 +109,11 @@ export class ProductController {
     }
   )
   )
-  async update(@Param('id', ParseIntPipe) id: number, @Param('supplier_product_id', ParseIntPipe) supplier_product_id: number, @Body() updateProductDto: UpdateProductDto, @UploadedFile() file): Promise<ProductDto> {
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto, @UploadedFile() file): Promise<ProductDto> {
     const image_name = file?.filename || updateProductDto.image;
     console.log('upload image file =>', file);
     console.log('updateProductDto =>', updateProductDto);
-    return await this.productService.update(id, supplier_product_id, updateProductDto, image_name);
+    return await this.productService.update(id, updateProductDto, image_name);
   }
 
   /**

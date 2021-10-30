@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { toStoreProductDto, toStoreProductModel } from 'src/helper/mapper/store-product.mapper';
 import { toStoreDto, toStoreModel } from 'src/helper/mapper/store.mapper';
 import { formattedDate } from 'src/helper/utils';
 import { Product } from 'src/product/entities/product.entity';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateStoreProductDto } from './dto/create-store-product.dto';
 import { CreateStoreDto } from './dto/create-store.dto';
+import { StoreProductDto } from './dto/store-product.dto';
 import { StoreDto } from './dto/store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { StoreProduct } from './entities/store-product.entity';
@@ -43,9 +45,9 @@ export class StoreService {
 
   /**
    * create new store data
-   * return StoreProduct entity
+   * return StoreProductDto
    */
-  async createStoreProduct(createStoreProductDto: CreateStoreProductDto): Promise<StoreProduct> {
+  async createStoreProduct(createStoreProductDto: CreateStoreProductDto): Promise<StoreProductDto> {
 
     const storeProduct: StoreProduct = this.storeProductRepository.create(createStoreProductDto);
     try {
@@ -54,7 +56,8 @@ export class StoreService {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: `Create store's product fail` });
     }
-    return storeProduct;
+    const data = toStoreProductModel(storeProduct);
+    return toStoreProductDto(data);
   }
 
   /**
