@@ -1,7 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Product } from "src/product/entities/product.entity";
-import { StoreProduct } from "src/store/entities/store-product.entity";
-import { SupplierProduct } from "src/supplier/entities/supplier-product.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -26,9 +24,6 @@ export class ProductType {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: true })
     updated_at: Date;
 
-    @OneToMany(type => SupplierProduct, supplierProduct => supplierProduct.product_type)
-    suppliers: SupplierProduct[];
-
-    @OneToMany(type => StoreProduct, storeProduct => storeProduct.product_type)
-    stores: StoreProduct[];
+    @OneToMany(type => Product, product => product.category)
+    products: Product[];
 }

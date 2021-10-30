@@ -1,26 +1,18 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { toStoreProductDto, toStoreProductModel } from 'src/helper/mapper/store-product.mapper';
 import { toStoreDto, toStoreModel } from 'src/helper/mapper/store.mapper';
 import { formattedDate } from 'src/helper/utils';
-import { Product } from 'src/product/entities/product.entity';
 import { Repository } from 'typeorm';
-import { CreateStoreProductDto } from './dto/create-store-product.dto';
 import { CreateStoreDto } from './dto/create-store.dto';
-import { StoreProductDto } from './dto/store-product.dto';
 import { StoreDto } from './dto/store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
-import { StoreProduct } from './entities/store-product.entity';
 import { Store } from './entities/store.entity';
 const logger = new Logger('StoreService')
 
 @Injectable()
 export class StoreService {
   constructor(
-    @InjectRepository(Store) private readonly storeRepository: Repository<Store>,
-    @InjectRepository(StoreProduct) private readonly storeProductRepository: Repository<StoreProduct>,
-    @InjectRepository(Product) private readonly productRepository: Repository<Product>
-  ) { }
+    @InjectRepository(Store) private readonly storeRepository: Repository<Store>) { }
   /**
    * create new store data
    * return StoreDto
@@ -41,23 +33,6 @@ export class StoreService {
     }
     const data = toStoreModel(store);
     return toStoreDto(data);
-  }
-
-  /**
-   * create new store data
-   * return StoreProductDto
-   */
-  async createStoreProduct(createStoreProductDto: CreateStoreProductDto): Promise<StoreProductDto> {
-
-    const storeProduct: StoreProduct = this.storeProductRepository.create(createStoreProductDto);
-    try {
-      await this.storeProductRepository.save(storeProduct);
-    } catch (error) {
-      logger.error(`create: ${error}`);
-      throw new InternalServerErrorException({ message: `Create store's product fail` });
-    }
-    const data = toStoreProductModel(storeProduct);
-    return toStoreProductDto(data);
   }
 
   /**

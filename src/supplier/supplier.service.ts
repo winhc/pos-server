@@ -1,24 +1,18 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { toSupplierProductDto, toSupplierProductModel } from 'src/helper/mapper/supplier-product.mapper';
 import { toSupplierDto, toSupplierModel } from 'src/helper/mapper/supplier.mapper';
 import { formattedDate } from 'src/helper/utils';
 import { Like, Repository } from 'typeorm';
-import { CreateSupplierProductDto } from './dto/create-supplier-product.dto';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
-import { SupplierProductDto } from './dto/supplier-product.dto';
 import { SupplierDto } from './dto/supplier.dto';
-import { UpdateSupplierProductDto } from './dto/update-supplier-product.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
-import { SupplierProduct } from './entities/supplier-product.entity';
 import { Supplier } from './entities/supplier.entity';
 const logger = new Logger('SupplierService')
 
 @Injectable()
 export class SupplierService {
   constructor(
-    @InjectRepository(Supplier) private readonly supplierRepository: Repository<Supplier>,
-    @InjectRepository(SupplierProduct) private readonly supplierProductRepository: Repository<SupplierProduct>) { }
+    @InjectRepository(Supplier) private readonly supplierRepository: Repository<Supplier>) { }
 
   /**
    * create new supplier data
@@ -40,42 +34,6 @@ export class SupplierService {
     }
     const data = toSupplierModel(supplier);
     return toSupplierDto(data);
-  }
-
-  /**
-   * create new supplier product data
-   * return SupplierProductDto
-   */
-  async createSupplierProduct(importProductDto: CreateSupplierProductDto): Promise<SupplierProductDto> {
-    const supplierProduct: SupplierProduct = this.supplierProductRepository.create(importProductDto);
-    try {
-      await this.supplierProductRepository.save(supplierProduct);
-    } catch (error) {
-      logger.error(`create: ${error}`);
-      throw new InternalServerErrorException({ message: 'Create supplier product fail' });
-    }
-    const data = toSupplierProductModel(supplierProduct);
-    return toSupplierProductDto(data);
-  }
-
-  /**
-   * update supplier product data
-   * return SupplierProduct entity
-   */
-  async updateSupplierProduct(id: number, updateSupplierProductDto: UpdateSupplierProductDto): Promise<SupplierProduct> {
-    const supplierProduct = await this.supplierProductRepository.findOne(id);
-    if (!supplierProduct) {
-      throw new BadRequestException({ message: `Supplier's product not found` });
-    }
-    try {
-      const supplierProductToUpdate = Object.assign(supplierProduct, updateSupplierProductDto);
-      await this.supplierProductRepository.update(id, supplierProductToUpdate);
-    } catch (error) {
-      logger.error(`update : ${error}`);
-      throw new InternalServerErrorException({ message: 'Update fail' })
-    }
-    const updateSupplierProduct = await this.supplierProductRepository.findOne(supplierProduct.id)
-    return updateSupplierProduct;
   }
 
   /**
@@ -163,19 +121,6 @@ export class SupplierService {
     }
   }
 
-  async findSupplierProduct(): Promise<SupplierProductDto> {
-    const [supplier_product,count] = await this.supplierProductRepository.createQueryBuilder('supplier_product')
-      .leftJoinAndSelect('supplier_product.product', 'product')
-      .leftJoinAndSelect('supplier_product.supplier', 'supplier')
-      .leftJoinAndSelect('supplier_product.product_type', 'product_type')
-      .leftJoinAndSelect('product.category', 'category')
-      .leftJoinAndSelect('product.brand', 'brand')
-      .orderBy('supplier_product.id')
-      .getManyAndCount();
-      const data = supplier_product.map(value => toSupplierProductModel(value));
-      return toSupplierProductDto(data, count);
-  }
-
   /**
    * find supplier data
    * return SupplierDto
@@ -249,9 +194,6 @@ export class SupplierService {
     if (!supplier) {
       throw new BadRequestException({ message: 'Supplier not found' });
     }
-    // if (supplier.products.length > 0) {
-    //   throw new BadRequestException({ message: `Can't delete this supplier. This supplier have related products. If you want to delete this supplier, first delete related products.` });
-    // }
     const deleteSupplier = await this.supplierRepository.remove(supplier);
     const data = toSupplierModel(deleteSupplier);
     return toSupplierDto(data);

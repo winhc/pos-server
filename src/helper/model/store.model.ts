@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
-import { StoreProduct } from "src/store/entities/store-product.entity";
 
 export class StoreModel {
     @ApiProperty()
@@ -25,8 +24,4 @@ export class StoreModel {
     @ApiProperty()
     @IsNotEmpty()
     updated_at: Date;
-
-    @ApiProperty()
-    @IsNotEmpty()
-    store_products: StoreProduct[];
 }
