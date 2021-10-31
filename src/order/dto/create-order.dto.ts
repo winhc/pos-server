@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
 import { Customer } from "src/customer/entities/customer.entity";
+import { CustomerModel } from "src/helper/model/customer.model";
+import { ProductModel } from "src/helper/model/product.model";
 import { Product } from "src/product/entities/product.entity";
 
 export class CreateOrderDto {
@@ -9,16 +11,16 @@ export class CreateOrderDto {
     @IsNotEmpty()
     order_code: string;
 
-    // @ApiProperty({ required: true })
-    // @IsNotEmpty()
-    // product: Product;
+    @ApiProperty({ type: ProductModel, required: true })
+    @IsNotEmpty()
+    product: Product;
 
     @ApiProperty({ required: true })
     @IsString()
     @IsNotEmpty()
     status: string;
 
-    @ApiProperty({ required: true })
+    @ApiProperty({type: CustomerModel, required: true })
     @IsNotEmpty()
     customer: Customer;
 
@@ -32,7 +34,4 @@ export class CreateOrderDto {
 
     @ApiProperty({ required: false })
     remarks?: string;
-
-    @ApiProperty({ required: false })
-    created_at?: Date;
 }

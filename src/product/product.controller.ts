@@ -119,7 +119,7 @@ export class ProductController {
   /**
    * delete product by id
    */
-  @ApiOkResponse({ type: ProductDto, description: 'Response deleted product type' })
+  @ApiOkResponse({ type: ProductDto, description: 'Response deleted product' })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()

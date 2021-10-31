@@ -1,5 +1,6 @@
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
+import { Order } from "src/order/entities/order.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -52,4 +53,7 @@ export class Product {
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: true })
     updated_at: Date;
+
+    @OneToMany(type => Order, order => order.product)
+    orders: Order[];
 }
