@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, Req } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { OrderDto } from './dto/order.dto';
+import { UserModel } from 'src/helper/model/user.model';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -15,13 +16,14 @@ export class OrderController {
   /**
    * create new order
    */
-  @ApiCreatedResponse({ type: OrderDto, description: 'Response cerated order' })
+  @ApiCreatedResponse({ description: 'Response cerated order' })
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
   @Post()
-  async create(@Body() createOrderDto: CreateOrderDto): Promise<OrderDto> {
-    return await this.orderService.create(createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto[], @Req() req: any): Promise<any> {
+    const user = <UserModel>req.user;
+    return await this.orderService.create(createOrderDto, user);
   }
 
   /**

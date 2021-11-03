@@ -230,6 +230,15 @@ export class UserService implements OnApplicationBootstrap {
     return toUserDto(data);
   }
 
+  async findUser(options?: object): Promise<User> {
+    try {
+      return await this.userRepository.findOne(options);
+    } catch (error) {
+      logger.error(`findUser: ${error}`);
+      throw new InternalServerErrorException({ description: "User is not found" })
+    }
+  }
+
   /**
    * find user account
    * return UserLoginReplyDto

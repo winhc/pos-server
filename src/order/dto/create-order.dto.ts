@@ -30,7 +30,7 @@ export class CreateOrderDto {
 
     @ApiProperty({ required: true })
     @IsNotEmpty()
-    amount: number;
+    price: number;
 
     @ApiProperty({ required: false })
     remarks?: string;

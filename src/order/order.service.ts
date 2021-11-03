@@ -1,7 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { toOrderDto, toOrderModel } from 'src/helper/mapper/order.mapper';
+import { UserModel } from 'src/helper/model/user.model';
 import { formattedDate } from 'src/helper/utils';
+import { CreateSaleDto } from 'src/sale/dto/create-sale.dto';
+import { SaleService } from 'src/sale/sale.service';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderDto } from './dto/order.dto';
@@ -10,18 +15,52 @@ import { Order } from './entities/order.entity';
 const logger = new Logger('OrderService')
 @Injectable()
 export class OrderService {
-  constructor(@InjectRepository(Order) private readonly orderRepository: Repository<Order>) { }
+  constructor(
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+    private readonly userService: UserService,
+    private readonly saleService: SaleService
+    ) { }
 
-  async create(createOrderDto: CreateOrderDto): Promise<OrderDto> {
-    const order: Order = this.orderRepository.create(createOrderDto);
+  async create(createOrderDto: CreateOrderDto[], { account }: UserModel): Promise<any> {
+    const orders: Order[] = this.orderRepository.create(createOrderDto);
+    for(var of in orders){
+      logger.log(`orders => ${JSON.stringify(orders)}`)
+    }
+
+    const {order_code} = createOrderDto[0];
+    const inDb = await this.orderRepository.findOne({where: {order_code}});
+    if(inDb){
+      throw new BadRequestException({ message: 'Order code already exit' });
+    }
+    const user = await this.userService.findUser({ where: {account} });
+    logger.log(`user: ${JSON.stringify(user)}`);
     try {
-      await this.orderRepository.save(order);
+      const savedOrderList: Order[] = await this.orderRepository.save(orders);
+      if(savedOrderList.length > 0){
+        const order_code = savedOrderList[0].order_code;
+        var total_amount = 0;
+        for(var data of savedOrderList){
+          logger.log(`savedOrderList=> ${JSON.stringify(data)}`)
+          total_amount += (data.price * data.quantity);
+        }
+        const createSaleDto: CreateSaleDto = {
+          order_code,
+          user,
+          total_amount,
+          pay: total_amount,
+          refund: 0
+        }
+        logger.log(`createSaleDto => ${JSON.stringify(createSaleDto)}`)
+        const cretedSale = await this.saleService.create(createSaleDto);
+        if(cretedSale.data == null){
+          throw new InternalServerErrorException({ message: 'Create sales fail' });
+        }
+      }
     } catch (error) {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create orders fail' });
     }
-    const data = toOrderModel(order);
-    return toOrderDto(data);
+    return {message: 'Success create order'}
   }
 
   /**

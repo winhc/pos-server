@@ -22,7 +22,7 @@ export class OrderModel {
     quantity: number;
 
     @ApiProperty()
-    amount: number;
+    price: number;
 
     @ApiProperty()
     remarks: string;

@@ -30,7 +30,7 @@ export class ProductService {
     createProductDto.image = image_name;
     const { product_name, product_code, brand } = createProductDto;
     const brand_id = JSON.stringify(brand);
-    if(brand_id == '""'){
+    if (brand_id == '""') {
       createProductDto.brand = null;
     }
     const productNameInDb = await this.productRepository.findOne({ where: { product_name } });
@@ -249,9 +249,9 @@ export class ProductService {
       throw new BadRequestException({ message: 'Product not found' });
     }
     try {
-      const {brand} = updateProductDto;
+      const { brand } = updateProductDto;
       const brand_id = JSON.stringify(brand);
-      if(brand_id == '""'){
+      if (brand_id == '""') {
         updateProductDto.brand = null;
       }
       updateProductDto.image = image_name;
@@ -282,5 +282,25 @@ export class ProductService {
     const deleteProduct = await this.productRepository.remove(product);
     const data = toProductModel(deleteProduct);
     return toProductDto(data);
+  }
+
+  async findProductShop(category_id?: number): Promise<ProductDto> {
+    if (category_id == 0) {
+      const [product, count] = await this.productRepository.createQueryBuilder('product')
+        .where('product.quantity > ' + 0)
+        .orderBy('product.id')
+        .getManyAndCount()
+      const data = product.map(value => toProductModel(value));
+      return toProductDto(data, count);
+    } else {
+      const [product, count] = await this.productRepository.createQueryBuilder('product')
+        .leftJoin('product.category', 'category')
+        .where('product.quantity > ' + 0)
+        .andWhere('category.id = :c_id', { c_id: category_id })
+        .orderBy('product.id')
+        .getManyAndCount()
+      const data = product.map(value => toProductModel(value));
+      return toProductDto(data, count);
+    }
   }
 }

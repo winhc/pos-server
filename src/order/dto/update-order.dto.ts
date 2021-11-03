@@ -31,7 +31,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
 
     @ApiProperty({ required: true })
     @IsNotEmpty()
-    amount: number;
+    price: number;
 
     @ApiProperty({ required: false })
     remarks?: string;

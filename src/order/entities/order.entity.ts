@@ -23,7 +23,7 @@ export class Order {
     quantity: number;
 
     @Column({ nullable: false })
-    amount: number;
+    price: number;
 
     @Column({ nullable: true })
     remarks: string;
