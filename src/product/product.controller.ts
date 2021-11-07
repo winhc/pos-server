@@ -127,17 +127,4 @@ export class ProductController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<ProductDto> {
     return await this.productService.remove(id);
   }
-
-  /**
-   * find product for shop
-   */
-  @ApiOkResponse({ type: ProductDto, isArray: false, description: 'Response product for shop' })
-  @ApiNotFoundResponse()
-  @ApiBadRequestResponse()
-  @ApiInternalServerErrorResponse()
-  @Get('shop/:category_id')
-  async findProductShop(
-    @Param('category_id') category_id?: number): Promise<ProductDto> {
-    return await this.productService.findProductShop(+category_id);
-  }
 }

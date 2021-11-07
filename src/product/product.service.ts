@@ -56,12 +56,12 @@ export class ProductService {
    * find product data
    * return ProductDto
    */
-  async findAll(protuct_name?: string, page_size?: number, page_index?: number, from_date?: string, to_date?: string): Promise<ProductDto> {
-    logger.log(`page_size: ${page_size}, page_index: ${page_index}, protuct_name: ${protuct_name}, from_date: ${from_date}, to_date: ${to_date}`)
+  async findAll(product_name?: string, page_size?: number, page_index?: number, from_date?: string, to_date?: string): Promise<ProductDto> {
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, product_name: ${product_name}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
 
       // Option 1
-      if (protuct_name && from_date && to_date && page_size && page_index) {
+      if (product_name && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
@@ -76,7 +76,7 @@ export class ProductService {
         //   .select('*')
         //   .addSelect('COUNT(*) OVER () AS count')
         //   .where('DATE(product.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-        //   .andWhere('product.product_name LIKE :p_name', { p_name: `%${protuct_name}%` })
+        //   .andWhere('product.product_name LIKE :p_name', { p_name: `%${product_name}%` })
         //   .skip(fromIndex)
         //   .take(takeLimit)
         //   .orderBy('product.id')
@@ -93,7 +93,7 @@ export class ProductService {
         //   relations: ['category', 'product_type', 'brand', 'supplier_product'],
         //   skip: fromIndex,
         //   take: takeLimit,
-        //   where: { product_name: Like(`%${protuct_name}%`) }
+        //   where: { product_name: Like(`%${product_name}%`) }
         // });
 
         /**
@@ -108,7 +108,7 @@ export class ProductService {
           .leftJoinAndSelect('product.brand', 'brand')
           .leftJoinAndSelect('product.product_type', 'product_type')
           .where('DATE(product.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-          .andWhere('product.product_name LIKE :p_name', { p_name: `%${protuct_name}%` })
+          .andWhere('product.product_name LIKE :p_name', { p_name: `%${product_name}%` })
           .orderBy('product.id')
           .getManyAndCount()
         const data = product.map(value => toProductModel(value));
@@ -132,7 +132,7 @@ export class ProductService {
         return toProductDto(data, count);
       }
       // Option 3
-      else if (protuct_name && page_size && page_index) {
+      else if (product_name && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
@@ -142,7 +142,7 @@ export class ProductService {
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.brand', 'brand')
           .leftJoinAndSelect('product.product_type', 'product_type')
-          .where('product.product_name LIKE :p_name', { p_name: `%${protuct_name}%` })
+          .where('product.product_name LIKE :p_name', { p_name: `%${product_name}%` })
           .orderBy('product.id')
           .getManyAndCount()
         const data = product.map(value => toProductModel(value));
@@ -284,15 +284,33 @@ export class ProductService {
     return toProductDto(data);
   }
 
-  async findProductShop(category_id?: number): Promise<ProductDto> {
-    if (category_id == 0) {
+  async findProductShop(category_id?: number, product_name?: string): Promise<ProductDto> {
+    if (category_id == 0 && product_name) { // all category and product_name
+      const [product, count] = await this.productRepository.createQueryBuilder('product')
+        .where('product.quantity > ' + 0)
+        .andWhere('product.product_name LIKE :p_name', { p_name: `%${product_name}%` })
+        .orderBy('product.id')
+        .getManyAndCount()
+      const data = product.map(value => toProductModel(value));
+      return toProductDto(data, count);
+    } else if (category_id != 0 && product_name) { // selected category and product_name
+      const [product, count] = await this.productRepository.createQueryBuilder('product')
+        .leftJoin('product.category', 'category')
+        .where('product.quantity > ' + 0)
+        .andWhere('category.id = :c_id', { c_id: category_id })
+        .andWhere('product.product_name LIKE :p_name', { p_name: `%${product_name}%` })
+        .orderBy('product.id')
+        .getManyAndCount()
+      const data = product.map(value => toProductModel(value));
+      return toProductDto(data, count);
+    } else if (category_id == 0) { // all category , without product_name
       const [product, count] = await this.productRepository.createQueryBuilder('product')
         .where('product.quantity > ' + 0)
         .orderBy('product.id')
         .getManyAndCount()
       const data = product.map(value => toProductModel(value));
       return toProductDto(data, count);
-    } else {
+    } else if (category_id != 0) { // selected category , without product_name
       const [product, count] = await this.productRepository.createQueryBuilder('product')
         .leftJoin('product.category', 'category')
         .where('product.quantity > ' + 0)
