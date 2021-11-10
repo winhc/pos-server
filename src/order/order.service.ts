@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { toOrderDto, toOrderModel } from 'src/helper/mapper/order.mapper';
 import { UserModel } from 'src/helper/model/user.model';
 import { formattedDate } from 'src/helper/utils';
+import { ProductService } from 'src/product/product.service';
 import { CreateSaleDto } from 'src/sale/dto/create-sale.dto';
 import { SaleService } from 'src/sale/sale.service';
 import { User } from 'src/user/entities/user.entity';
@@ -18,7 +19,8 @@ export class OrderService {
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     private readonly userService: UserService,
-    private readonly saleService: SaleService
+    private readonly saleService: SaleService,
+    private readonly productService: ProductService,
     ) { }
 
   async create(createOrderDto: CreateOrderDto[], { account }: UserModel): Promise<any> {
@@ -54,6 +56,8 @@ export class OrderService {
         const cretedSale = await this.saleService.create(createSaleDto);
         if(cretedSale.data == null){
           throw new InternalServerErrorException({ message: 'Create sales fail' });
+        }else{
+          await this.productService.updateOrdrProduct(savedOrderList);
         }
       }
     } catch (error) {

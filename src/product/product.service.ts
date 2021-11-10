@@ -11,6 +11,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { formattedDate } from 'src/helper/utils';
 import { CategoryService } from 'src/category/category.service';
+import { Order } from 'src/order/entities/order.entity';
 const logger = new Logger('ProductService');
 
 @Injectable()
@@ -268,6 +269,20 @@ export class ProductService {
     const updateProduct = await this.findOne(product.id);
     const data = toProductModel(updateProduct);
     return toProductDto(data);
+  }
+
+  async updateOrdrProduct(orderList: Order[]): Promise<any> {
+    logger.log(`orderList: ${JSON.stringify(orderList)}`);
+    for (const data of orderList) {
+      const id = +JSON.stringify(data.product);
+      const product = await this.findOne(id);
+      const quantity = product.quantity - data.quantity;
+      const updateProductObj = {
+        quantity
+      };
+      const updateProduct = Object.assign(product, updateProductObj);
+      await this.productRepository.update(id, updateProduct)
+    }
   }
 
   /**
