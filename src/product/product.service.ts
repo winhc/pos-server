@@ -271,6 +271,29 @@ export class ProductService {
     return toProductDto(data);
   }
 
+  async updatePurchaseProduct(id: number, new_quantity: number): Promise<ProductDto> {
+    const product = await this.findOne(id);
+    if (!product) {
+      throw new BadRequestException({ message: 'Product not found' });
+    }
+    try {
+      const quantity = product.quantity + new_quantity;
+      const updated_at = new Date();
+      const updateProductObj = {
+        quantity,
+        updated_at
+      };
+      const productToUpdate = Object.assign(product, updateProductObj);
+      await this.productRepository.update(id, productToUpdate);
+    } catch (error) {
+      logger.error(`update : ${error}`);
+      throw new InternalServerErrorException({ message: 'Update products fail' })
+    }
+    const updateProduct = await this.findOne(product.id);
+    const data = toProductModel(updateProduct);
+    return toProductDto(data);
+  }
+
   async updateOrdrProduct(orderList: Order[]): Promise<any> {
     logger.log(`orderList: ${JSON.stringify(orderList)}`);
     for (const data of orderList) {

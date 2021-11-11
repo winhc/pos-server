@@ -16,6 +16,7 @@ import { OrderModule } from './order/order.module';
 import { SaleModule } from './sale/sale.module';
 import { StoreModule } from './store/store.module';
 import { PosModule } from './pos/pos.module';
+import { PurchaseModule } from './purchase/purchase.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -35,7 +36,8 @@ import { PosModule } from './pos/pos.module';
     OrderModule,
     SaleModule,
     StoreModule,
-    PosModule
+    PosModule,
+    PurchaseModule
   ]
 })
 export class AppModule { }
