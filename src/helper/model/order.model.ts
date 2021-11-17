@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Customer } from "src/customer/entities/customer.entity";
 import { Product } from "src/product/entities/product.entity";
+import { Sale } from "src/sale/entities/sale.entity";
 
 export class OrderModel {
     @ApiProperty()
@@ -11,6 +12,9 @@ export class OrderModel {
 
     @ApiProperty()
     product: Product;
+
+    @ApiProperty()
+    sale: Sale;
 
     @ApiProperty()
     status: string;

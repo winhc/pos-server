@@ -2,7 +2,8 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { InjectRepository } from '@nestjs/typeorm';
 import { toSaleDto, toSaleModel } from 'src/helper/mapper/sale.mapper';
 import { formattedDate } from 'src/helper/utils';
-import { Repository } from 'typeorm';
+import { Order } from 'src/order/entities/order.entity';
+import { In, Repository } from 'typeorm';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { SaleDto } from './dto/sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
@@ -11,12 +12,23 @@ const logger = new Logger('SaleService');
 
 @Injectable()
 export class SaleService {
-  constructor(@InjectRepository(Sale) private readonly saleRepository: Repository<Sale>) { }
+  constructor(
+    @InjectRepository(Sale) private readonly saleRepository: Repository<Sale>,
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+  ) { }
 
   async create(createSaleDto: CreateSaleDto): Promise<SaleDto> {
     const sale: Sale = this.saleRepository.create(createSaleDto);
     try {
-      await this.saleRepository.save(sale);
+      const createdSale = await this.saleRepository.save(sale);
+      if(createdSale.id > 0){
+        this.orderRepository
+        .createQueryBuilder()
+        .update(Order)
+        .set({ sale: sale })
+        .where({ id: In(createSaleDto.orderIds) })
+        .execute();
+      }
     } catch (error) {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create sale fail' });

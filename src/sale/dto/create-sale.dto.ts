@@ -1,12 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
+import { Order } from "src/order/entities/order.entity";
 import { User } from "src/user/entities/user.entity";
 
 export class CreateSaleDto {
 
     @ApiProperty({required: true})
     @IsNotEmpty()
-    order_code: string;
+    sale_code: string;
+
+    @ApiProperty({required: true})
+    @IsNotEmpty()
+    orderIds: number[];
 
     @ApiProperty({type: User, required: true})
     @IsNotEmpty()

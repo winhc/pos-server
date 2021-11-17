@@ -6,7 +6,7 @@ import { CreateSaleDto } from './create-sale.dto';
 export class UpdateSaleDto extends PartialType(CreateSaleDto) {
     @ApiProperty({required: true})
     @IsNotEmpty()
-    order_code: string;
+    sale_code: string;
 
     @ApiProperty({type: User, required: true})
     @IsNotEmpty()

@@ -39,14 +39,19 @@ export class OrderService {
     try {
       const savedOrderList: Order[] = await this.orderRepository.save(orders);
       if(savedOrderList.length > 0){
-        const order_code = savedOrderList[0].order_code;
+        const sale_code = savedOrderList[0].order_code;
+        const orderIds = [];
+        for(const data of savedOrderList){
+          orderIds.push(data.id);
+        }
         var total_amount = 0;
         for(var data of savedOrderList){
           logger.log(`savedOrderList=> ${JSON.stringify(data)}`)
           total_amount += (data.price * data.quantity);
         }
         const createSaleDto: CreateSaleDto = {
-          order_code,
+          orderIds,
+          sale_code,
           user,
           total_amount,
           pay: total_amount,

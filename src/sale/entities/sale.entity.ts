@@ -1,14 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Order } from "src/order/entities/order.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Sale {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @OneToMany(type => Order, order => order.sale)
+    orders: Order[];
+
     @Column({ nullable: false, unique: true })
-    order_code: string;
+    sale_code: string;
 
     @ManyToOne(type => User, user=> user.sales)
     user: User;

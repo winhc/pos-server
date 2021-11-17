@@ -1,6 +1,7 @@
 import { Customer } from "src/customer/entities/customer.entity";
 import { Product } from "src/product/entities/product.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Sale } from "src/sale/entities/sale.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Order {
@@ -18,6 +19,9 @@ export class Order {
 
     @ManyToOne(type => Customer, customer => customer.orders)
     customer: Customer;
+
+    @ManyToOne(type => Sale, sale => sale.orders)
+    sale: Sale;
 
     @Column({ nullable: false })
     quantity: number;

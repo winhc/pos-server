@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
+import { Order } from "src/order/entities/order.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
 
 export class ProductModel {
@@ -42,6 +43,9 @@ export class ProductModel {
 
     @ApiProperty()
     expiry_at: Date;
+
+    @ApiProperty()
+    orders: Order[];
 
     @ApiProperty()
     remarks: string;
