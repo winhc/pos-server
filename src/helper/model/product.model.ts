@@ -3,6 +3,7 @@ import { Brand } from "src/brand/entities/brand.entity";
 import { Category } from "src/category/entities/category.entity";
 import { Order } from "src/order/entities/order.entity";
 import { ProductType } from "src/product-type/entities/product-type.entity";
+import { Purchase } from "src/purchase/entities/purchase.entity";
 
 export class ProductModel {
     @ApiProperty()
@@ -46,6 +47,9 @@ export class ProductModel {
 
     @ApiProperty()
     orders: Order[];
+
+    @ApiProperty()
+    purchases: Purchase[];
 
     @ApiProperty()
     remarks: string;

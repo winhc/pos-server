@@ -18,6 +18,7 @@ import { StoreModule } from './store/store.module';
 import { PosModule } from './pos/pos.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { ReportModule } from './report/report.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -39,7 +40,8 @@ import { ReportModule } from './report/report.module';
     StoreModule,
     PosModule,
     PurchaseModule,
-    ReportModule
+    ReportModule,
+    DashboardModule
   ]
 })
 export class AppModule { }
