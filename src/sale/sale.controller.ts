@@ -41,7 +41,7 @@ export class SaleController {
   async findAll(
     @Query('page_size') page_size?: number,
     @Query('page_index') page_index?: number,
-    @Query('order_code') order_code?: string,
+    @Query('sale_code') order_code?: string,
     @Query('from_date') from_date?: string,
     @Query('to_date') to_date?: string): Promise<SaleDto> {
     return await this.saleService.findAll(order_code, +page_size, +page_index, from_date, to_date);

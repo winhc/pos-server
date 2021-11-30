@@ -58,6 +58,6 @@ export class Product {
     @OneToMany(type => Order, order => order.product)
     orders: Order[];
 
-    @OneToMany(type => Purchase, purchase => purchase.supplier)
+    @OneToMany(type => Purchase, purchase => purchase.product)
     purchases: Purchase[];
 }

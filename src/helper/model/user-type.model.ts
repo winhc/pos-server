@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
+import { User } from "src/user/entities/user.entity";
 
 export class UserTypeModel {
 
@@ -11,6 +12,9 @@ export class UserTypeModel {
     @IsString()
     @IsNotEmpty()
     user_role: string;
+
+    @ApiProperty()
+    users: User[]
 
     @ApiProperty()
     remarks?: string;

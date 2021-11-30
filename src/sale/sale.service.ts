@@ -41,12 +41,12 @@ export class SaleService {
    * find sale data
    * return SaleDto
    */
-  async findAll(order_code?: string, page_size?: number, page_index?: number, from_date?: string, to_date?: string): Promise<SaleDto> {
-    logger.log(`page_size: ${page_size}, page_index: ${page_index}, order_code: ${order_code}, from_date: ${from_date}, to_date: ${to_date}`)
+  async findAll(sale_code?: string, page_size?: number, page_index?: number, from_date?: string, to_date?: string): Promise<SaleDto> {
+    logger.log(`page_size: ${page_size}, page_index: ${page_index}, sale_code: ${sale_code}, from_date: ${from_date}, to_date: ${to_date}`)
     try {
 
       // Option 1
-      if (order_code && from_date && to_date && page_size && page_index) {
+      if (sale_code && from_date && to_date && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
@@ -55,7 +55,7 @@ export class SaleService {
           .take(takeLimit)
           .leftJoinAndSelect('sale.user', 'user')
           .where('DATE(sale.updated_at) BETWEEN :start_date AND :end_date', { start_date: formattedDate(from_date), end_date: formattedDate(to_date) })
-          .andWhere('sale.order_code LIKE :o_code', { o_code: `%${order_code}%` })
+          .andWhere('sale.sale_code LIKE :o_code', { o_code: `%${sale_code}%` })
           .orderBy('sale.id')
           .getManyAndCount()
         const data = sale.map(value => toSaleModel(value));
@@ -77,7 +77,7 @@ export class SaleService {
         return toSaleDto(data, count);
       }
       // Option 3
-      else if (order_code && page_size && page_index) {
+      else if (sale_code && page_size && page_index) {
         const fromIndex = (page_index - 1) * page_size;
         const takeLimit = page_size;
 
@@ -85,7 +85,7 @@ export class SaleService {
           .skip(fromIndex)
           .take(takeLimit)
           .leftJoinAndSelect('sale.user', 'user')
-          .where('sale.order_code LIKE :o_code', { o_code: `%${order_code}%` })
+          .where('sale.sale_code LIKE :o_code', { o_code: `%${sale_code}%` })
           .orderBy('sale.id')
           .getManyAndCount()
         const data = sale.map(value => toSaleModel(value));
