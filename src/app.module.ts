@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import ormConfig from 'orm.config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { ProductTypeModule } from './product-type/product-type.module';
@@ -22,10 +22,26 @@ import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
-    envFilePath: ['.env.dev'],
+    envFilePath: ['.env.dev','.env.prod']
   }),
     UserModule,
-  TypeOrmModule.forRoot(ormConfig),
+  TypeOrmModule.forRootAsync(
+    {
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        url: configService.get<string>('DATABASE_URL'),
+        type: "postgres",
+        // host: configService.get<string>('DATABASE_HOST'),
+        // port: configService.get<number>('DATABASE_PORT'),
+        // username: configService.get<string>('DATABASE_USER'),
+        // password: configService.get<string>('DATABASE_PASSWORD'),
+        // database: configService.get<string>('DATABASE_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: configService.get<boolean>('SYNCHRONIZE'),
+      }),
+      inject: [ConfigService]
+    }
+  ),
     AuthModule,
     CategoryModule,
     ProductModule,
