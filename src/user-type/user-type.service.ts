@@ -48,6 +48,23 @@ export class UserTypeService {
     }
   }
 
+  async createUserTypeList(): Promise<UserTypeDto>{
+    try {
+      const createUserTypeDto: CreateUserTypeDto[] = [
+        { user_role: 'admin' },
+        { user_role: 'manager' },
+        { user_role: 'accountant' },
+        { user_role: 'seller' }
+      ];
+      const userType: UserType[] = this.userTypeRepository.create(createUserTypeDto);
+      const userTypeList = await this.userTypeRepository.save(userType);
+      const data = userTypeList.map(value => toUserTypeModel(value));
+      return toUserTypeDto(data, userTypeList.length);
+    } catch (error) {
+      logger.error(`initial user role create: ${error}`)
+    }
+  }
+
   /**
    * find user type data
    * return UserTypeDto

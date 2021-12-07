@@ -11,11 +11,15 @@ import { UserLoginReplyDto } from './dto/user-login-reply.dto';
 import { UserLoginRequestDto } from './dto/user-login-request.dto';
 import { UserDto } from './dto/user.dto';
 import { User } from './entities/user.entity';
+import { UserTypeDto } from 'src/user-type/dto/user-type-dto';
+import { CustomerService } from 'src/customer/customer.service';
 const logger = new Logger('UserService');
 @Injectable()
 export class UserService implements OnApplicationBootstrap {
   constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly userTypeService: UserTypeService) { }
+    private readonly userTypeService: UserTypeService,
+    private readonly customerService: CustomerService,
+    ) { }
 
   /*
     * for first setup time
@@ -26,10 +30,11 @@ export class UserService implements OnApplicationBootstrap {
   async onApplicationBootstrap(): Promise<void> {
     const inDb = await this.userRepository.findOne({ id: 1 });
     if (!inDb) {
-      const userType = await this.userTypeService.initialCreateAdminRole();
-      logger.log(`userType: ${userType.data['id']}`);
-      const adminUser: CreateUserDto = { user_name: 'posadmin', account: 'posadmin', password: 'posadmin', user_type: userType.data['id'], remarks: 'initial create admin' };
-      this.create(adminUser);
+      const userType : UserTypeDto = await this.userTypeService.createUserTypeList();
+      // logger.log(`userType: ${userType.data[0]['id']}`);
+      const adminUser: CreateUserDto = { user_name: 'posadmin', account: 'posadmin', password: 'posadmin', user_type: userType.data[0]['id'], remarks: 'initial create admin' };
+      await this.create(adminUser);
+      await this.customerService.initialCreateCustomer();
       logger.debug('Initial admin user created');
     }
   }

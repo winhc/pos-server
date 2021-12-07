@@ -31,6 +31,18 @@ export class CustomerService {
     return toCustomerDto(data);
   }
 
+  async initialCreateCustomer(): Promise<CustomerDto> {
+    try {
+      const inDb = await this.customerRepository.findOne({id: 1});
+      if(!inDb){
+        const newCustomer: CreateCustomerDto = { customer_name: 'Walk-In-Customer', phone: '' };
+        return await this.create(newCustomer);
+      }
+    } catch (error) {
+      logger.error(`initial customer create: ${error}`)
+    }
+  }
+
   /**
    * find customer data
    * return CustomerDto
