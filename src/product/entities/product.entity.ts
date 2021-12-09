@@ -13,7 +13,7 @@ export class Product {
     @Column({ nullable: false, unique: true })
     product_code: string;
 
-    @Column({ nullable: true, unique: true })
+    @Column({ nullable: false, unique: true })
     bar_code: string;
 
     @Column({ nullable: false, unique: true })
