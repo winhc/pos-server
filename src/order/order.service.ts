@@ -69,7 +69,7 @@ export class OrderService {
       logger.error(`create: ${error}`);
       throw new InternalServerErrorException({ message: 'Create orders fail' });
     }
-    return {message: 'Success create order'}
+    return {message: 'Success'}
   }
 
   /**

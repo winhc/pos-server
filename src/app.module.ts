@@ -29,20 +29,20 @@ import { DashboardModule } from './dashboard/dashboard.module';
     {
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        url: configService.get<string>('DATABASE_URL'),
+        // url: configService.get<string>('DATABASE_URL'),
         type: "postgres",
-        // host: configService.get<string>('DATABASE_HOST'),
-        // port: configService.get<number>('DATABASE_PORT'),
-        // username: configService.get<string>('DATABASE_USER'),
-        // password: configService.get<string>('DATABASE_PASSWORD'),
-        // database: configService.get<string>('DATABASE_NAME'),
+        host: configService.get<string>('DATABASE_HOST'),
+        port: configService.get<number>('DATABASE_PORT'),
+        username: configService.get<string>('DATABASE_USER'),
+        password: configService.get<string>('DATABASE_PASSWORD'),
+        database: configService.get<string>('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: configService.get<boolean>('SYNCHRONIZE'),
-        extra: {
-          ssl: {
-            rejectUnauthorized: false,
-          }
-        }
+        // extra: {
+        //   ssl: {
+        //     rejectUnauthorized: false,
+        //   }
+        // }
       }),
       inject: [ConfigService]
     }
