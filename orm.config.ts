@@ -8,7 +8,7 @@ const ormConfig: PostgresConnectionOptions = {
     password: "EMAmaMMCMgT5wi22CLQaX9gLFfjQ5byy",
     database: "cherry_central_db",
     entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
-    synchronize: false
+    synchronize: true
 }
 
 export default ormConfig;
