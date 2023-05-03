@@ -22,7 +22,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
-    envFilePath: ['.env.dev','.env.prod']
+    // envFilePath: ['.env.dev','.env.prod']
+    envFilePath: ['process.env']
   }),
     UserModule,
   TypeOrmModule.forRootAsync(
