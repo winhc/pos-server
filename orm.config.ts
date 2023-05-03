@@ -2,11 +2,11 @@ import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConne
 // postgres
 const ormConfig: PostgresConnectionOptions = {
     type: "postgres",
-    host: "dpg-ceju2epa6gdkdn6m248g-a",
+    host: "mouse.db.elephantsql.com",
     port: 5432,
-    username: "cherry_developer",
-    password: "EMAmaMMCMgT5wi22CLQaX9gLFfjQ5byy",
-    database: "cherry_central_db",
+    username: "jvqcspox",
+    password: "2UAlcEteZfOgUHZfCULOjI-itMYAvbRg",
+    database: "jvqcspox",
     entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
     synchronize: true
 }
